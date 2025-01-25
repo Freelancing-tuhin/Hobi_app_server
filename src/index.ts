@@ -1,22 +1,14 @@
 /* eslint-disable quotes */
-import express, { Request, Response } from "express";
-import dotenv from "dotenv";
-import mongoose from "mongoose";
+import express from "express";
 import cors from "cors";
 import bodyParser, { json } from "body-parser";
-import http from "http";
 import connectDb from "./config/db.config";
-import cron from "node-cron"
-
-
-const mongo_url = (process.env.NODE_ENV !== "PROD") ? process.env.LOCAL_MONGO_URL : process.env.PROD_MONGO_URL
 
 
 // dotenv.config();
 const app = express();
 
 const port = process.env.PORT || 8989;
-
 
 const options: cors.CorsOptions = {
   allowedHeaders: ["sessionId", "Content-Type"],
@@ -45,6 +37,6 @@ connectDb();
 
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`🚀 Server is running at http://localhost:${port}`);
 });
 

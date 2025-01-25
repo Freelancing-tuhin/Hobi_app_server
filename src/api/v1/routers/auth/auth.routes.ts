@@ -1,5 +1,5 @@
 import express from "express";
-import { loginUser, signUpUser } from "../../controllers/auth/auth.controllers";
+import { loginUser, signUpUser } from "../../controllers/auth/auth.controller";
 import { hashPassword } from "../../../../middleware/auth/hashPassword.middleware";
 import { checkUserExistenceMiddleware } from "../../../../middleware/validation/checkUserExistence.middleware";
 import { validateUserExistenceMiddleware } from "../../../../middleware/validation/validateUserExistance.middleware";
