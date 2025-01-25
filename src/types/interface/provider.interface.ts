@@ -6,6 +6,6 @@ export interface IProvider {
     address: string;
     password:string;
     profile_pic:string;
-    provided_service:string;
+    provided_service:any;
   }
   

@@ -12,7 +12,11 @@ const providerSchema: Schema<IProvider> = new Schema<IProvider>(
     address: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
     password: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
     profile_pic:SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-    provided_service:SCHEMA_DEFINITION_PROPERTY.optionalNullString
+    provided_service: {
+      type: Schema.Types.ObjectId,
+      ref: "services", 
+      required: false,
+    },
   },
   GENERAL_SCHEMA_OPTIONS
 );
