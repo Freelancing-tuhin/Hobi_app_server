@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import UserModel from "../../models/user.model";
 import ProviderModel from "../../models/provider.model";
+import AdminModel from "../../models/admin.model";
 
 export const validateUserExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
   const { phone } = req.body;
@@ -53,7 +54,7 @@ export const validateAdminExistenceMiddleware = async (req: any, res: Response, 
   const { phone } = req.body;
 
   try {
-    const userInstance = await ProviderModel.findOne({ phone });
+    const userInstance = await AdminModel.findOne({ phone });
     if (!userInstance) {
       return res.status(404).json({
         message: "User does not exist",
