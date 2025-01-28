@@ -4,6 +4,7 @@ import UserModel from "../../../../models/user.model";
 import { MESSAGE } from "../../../../constants/message";
 import { JWT_SECRET } from "../../../../config/config";
 import ProviderModel from "../../../../models/provider.model";
+import AdminModel from "../../../../models/admin.model";
 
 
 export const signUpUser = async (req: Request, res: Response) => {
@@ -90,6 +91,56 @@ export const signUpProvider = async (req: Request, res: Response) => {
 
 
 export const loginProvider = async (req: any, res: Response) => {
+  try {
+    const userInstance = req.user; 
+
+    const token = jwt.sign({ id: userInstance._id }, JWT_SECRET);
+
+    return res.status(200).json({
+      message: MESSAGE.post.succ,
+      token,
+      result: userInstance,
+    });
+  } catch (error) {
+    console.error("Error during login:", error);
+    return res.status(400).json({
+      message: MESSAGE.post.fail,
+      error: error,
+    });
+  }
+};
+
+export const signUpAdmin = async (req: Request, res: Response) => {
+  try {
+    const { full_name,phone, password,role } = req.body;
+
+   const temprole = role || "ADMIN";
+    
+    const newUser = await new AdminModel({
+      full_name,
+      phone,
+      password, 
+      role : temprole
+    }).save();
+
+    const token = jwt.sign({ id: newUser._id }, JWT_SECRET);
+
+    return res.status(200).json({
+      message:  MESSAGE.post.succ,
+      token,
+      result: newUser,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({
+      message:  MESSAGE.post.fail,
+      error: error,
+    });
+  }
+};
+
+
+export const loginAdmin = async (req: any, res: Response) => {
   try {
     const userInstance = req.user; 
 

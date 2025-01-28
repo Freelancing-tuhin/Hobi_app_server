@@ -1,8 +1,8 @@
 import express from "express";
-import { loginProvider, loginUser, signUpProvider, signUpUser } from "../../controllers/auth/auth.controller";
+import { loginAdmin, loginProvider, loginUser, signUpAdmin, signUpProvider, signUpUser } from "../../controllers/auth/auth.controller";
 import { hashPassword } from "../../../../middleware/auth/hashPassword.middleware";
-import { checkProviderExistenceMiddleware, checkUserExistenceMiddleware } from "../../../../middleware/validation/checkUserExistence.middleware";
-import { validateProviderExistenceMiddleware, validateUserExistenceMiddleware } from "../../../../middleware/validation/validateUserExistance.middleware";
+import { checkAdminExistenceMiddleware, checkProviderExistenceMiddleware, checkUserExistenceMiddleware } from "../../../../middleware/validation/checkUserExistence.middleware";
+import { validateAdminExistenceMiddleware, validateProviderExistenceMiddleware, validateUserExistenceMiddleware } from "../../../../middleware/validation/validateUserExistance.middleware";
 import { verifyPasswordMiddleware } from "../../../../middleware/auth/verifyPassword.middleware";
 
 
@@ -15,5 +15,10 @@ router.route("/user-login").post(validateUserExistenceMiddleware, verifyPassword
 
 router.route("/provider-signup").post( checkProviderExistenceMiddleware, hashPassword, signUpProvider);
 router.route("/provider-login").post(validateProviderExistenceMiddleware, verifyPasswordMiddleware, loginProvider);
+
+
+router.route("/admin-signup").post( checkAdminExistenceMiddleware, hashPassword, signUpAdmin);
+router.route("/admin-login").post(validateAdminExistenceMiddleware, verifyPasswordMiddleware, loginAdmin);
+
 
 module.exports = router;
