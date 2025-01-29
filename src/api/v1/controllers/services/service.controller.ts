@@ -27,8 +27,7 @@ export const createService = async (req: Request, res: Response) => {
 
 export const editService = async (req: Request, res: Response) => {
     try {
-      const { id } = req.query; // Service ID from request params
-      const { service_name, description } = req.body;
+      const {id, service_name, description } = req.body;
   
       const updatedService = await ServiceModel.findByIdAndUpdate(
         id,

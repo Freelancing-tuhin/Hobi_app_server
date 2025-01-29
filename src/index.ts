@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 app.get("/", (req, res) => {
 
   res.send(
-    `<h1>govt server succesfully</h1>`
+    `<h1>Server running successfully</h1>`
   )
 });
 
