@@ -12,6 +12,7 @@ const providerSchema: Schema<IProvider> = new Schema<IProvider>(
     address: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
     password: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
     profile_pic:SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+    ratings:SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
     provided_service: {
       type: Schema.Types.ObjectId,
       ref: "services", 
