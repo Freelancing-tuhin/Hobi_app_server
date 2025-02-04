@@ -17,7 +17,7 @@ const callSchema: Schema<ICall> = new Schema<ICall>(
     },
     status: {
       type: String,
-      enum: ["scheduled", "ongoing", "completed", "canceled"],
+      enum: ["requested" ,"scheduled", "ongoing", "completed", "canceled"],
       default: "scheduled",
     },
     scheduledAt: SCHEMA_DEFINITION_PROPERTY.optionalNullDate,

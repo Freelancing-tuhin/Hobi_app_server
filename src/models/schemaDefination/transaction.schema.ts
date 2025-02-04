@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import { GENERAL_SCHEMA_OPTIONS } from "../../constants/model/schemaOption";
 import SCHEMA_DEFINITION_PROPERTY from "../../constants/model/model.constant";
 import { ITransaction } from "../../types/interface/transcation.interface";
 

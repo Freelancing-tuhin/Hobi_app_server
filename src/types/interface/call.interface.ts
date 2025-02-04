@@ -1,7 +1,7 @@
 export interface ICall {
     user: any;
     provider: any;
-    status: "scheduled" | "ongoing" | "completed" | "canceled";
+    status: "requested" | "scheduled" | "ongoing" | "completed" | "canceled";
     scheduledAt?: Date;
     startedAt?: Date;
     endedAt?: Date;
