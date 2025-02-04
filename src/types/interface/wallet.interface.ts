@@ -1,8 +1,8 @@
 import { ITransaction } from "./transcation.interface";
 
 export interface IWallet {
-    user: any;
-    balance: number;
-    transactions: ITransaction[];
-  }
-  
+	owner: any;
+	ownerType: string;
+	balance: number;
+	transactions: ITransaction[];
+}
