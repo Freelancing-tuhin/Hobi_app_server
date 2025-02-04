@@ -13,6 +13,7 @@ const providerSchema: Schema<IProvider> = new Schema<IProvider>(
     password: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
     profile_pic:SCHEMA_DEFINITION_PROPERTY.optionalNullString,
     ratings:SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+    ratePerMinute:SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
     provided_service: {
       type: Schema.Types.ObjectId,
       ref: "services", 

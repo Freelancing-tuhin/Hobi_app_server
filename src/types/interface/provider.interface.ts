@@ -7,6 +7,7 @@ export interface IProvider {
     password:string;
     profile_pic:string;
     provided_service:any;
-    ratings:number
+    ratings:number;
+    ratePerMinute:number;
   }
   
