@@ -125,11 +125,11 @@ export const completeCall = async (req: Request, res: Response) => {
 			return res.status(400).json({ message: "Invalid call to complete" });
 		}
 
-		const currentTime = new Date();
-		const durationInMinutes = Math.max(
-			differenceInMinutes(currentTime, new Date(call?.startedAt)),
-			1 // Ensure at least 1 minute is charged
-		);
+		const currentTime: any = new Date();
+		const durationInMilliseconds = currentTime - call?.startedAt;
+
+		// Convert milliseconds to minutes (including fractional seconds)
+		const durationInMinutes = Math.max(durationInMilliseconds / 60000, 1);
 
 		const providerRatePerMinute = call.provider?.ratePerMinute || 0;
 		const totalAmount = providerRatePerMinute * durationInMinutes;

@@ -6,7 +6,6 @@ import {
 	requestCall,
 	walletUpdateCall
 } from "../../controllers/call/call.controller";
-import { deductBalanceAndCompleteCall } from "../../controllers/call/callCOmplete.controller";
 
 const router = Router();
 
