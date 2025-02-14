@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ProviderModel from "../../../../models/provider.model";
+import ProviderModel from "../../../../models/organizer.model";
 
 export const updatePastExperience = async (req: Request, res: Response) => {
 	try {

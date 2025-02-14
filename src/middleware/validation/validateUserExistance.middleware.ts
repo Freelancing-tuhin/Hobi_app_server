@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import UserModel from "../../models/user.model";
-import ProviderModel from "../../models/provider.model";
+import ProviderModel from "../../models/organizer.model";
 import AdminModel from "../../models/admin.model";
 
 export const validateUserExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {

@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import UserModel from "../../../../models/user.model";
 import { MESSAGE } from "../../../../constants/message";
 import { JWT_SECRET } from "../../../../config/config";
-import ProviderModel from "../../../../models/provider.model";
+import ProviderModel from "../../../../models/organizer.model";
 import AdminModel from "../../../../models/admin.model";
 
 export const signUpUser = async (req: Request, res: Response) => {
@@ -55,19 +55,19 @@ export const loginUser = async (req: any, res: Response) => {
 	}
 };
 
-export const signUpProvider = async (req: Request, res: Response) => {
+export const signUpOrganizer = async (req: Request, res: Response) => {
 	try {
-		const { full_name, age, phone, gender, address, password, profile_pic, provided_service } = req.body;
+		const { full_name, age, phone, email, gender, address, password, profile_pic } = req.body;
 
 		const newUser = await new ProviderModel({
 			full_name,
 			age,
 			phone,
+			email,
 			gender,
 			address,
 			password,
-			profile_pic,
-			provided_service
+			profile_pic
 		}).save();
 
 		const token = jwt.sign({ id: newUser._id }, JWT_SECRET);
@@ -86,7 +86,7 @@ export const signUpProvider = async (req: Request, res: Response) => {
 	}
 };
 
-export const loginProvider = async (req: any, res: Response) => {
+export const loginOrganizer = async (req: any, res: Response) => {
 	try {
 		const userInstance = req.user;
 

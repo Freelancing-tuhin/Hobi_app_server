@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ProviderModel from "../../../../models/provider.model";
+import ProviderModel from "../../../../models/organizer.model";
 import axios from "axios";
 import { createHmac } from "crypto";
 import Razorpay from "razorpay";
