@@ -67,7 +67,8 @@ export const signUpOrganizer = async (req: Request, res: Response) => {
 			gender,
 			address,
 			password,
-			profile_pic
+			profile_pic,
+			is_verified: false
 		}).save();
 
 		const token = jwt.sign({ id: newUser._id }, JWT_SECRET);

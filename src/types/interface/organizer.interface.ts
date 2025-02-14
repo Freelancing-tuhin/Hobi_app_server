@@ -9,6 +9,8 @@ export interface IOrganizer {
 	profile_pic: string;
 	ratings: number;
 
+	is_verified: boolean;
+
 	accountHolderName: string; // Name as per bank records
 	accountNumber: string; // Bank account number
 	confirmAccountNumber: string; // Confirmation field

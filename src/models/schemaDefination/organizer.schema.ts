@@ -14,6 +14,7 @@ const organizerSchema: Schema<IOrganizer> = new Schema<IOrganizer>(
 		password: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		profile_pic: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		ratings: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+		is_verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
 
 		// Bank details
 		accountHolderName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
