@@ -9,7 +9,7 @@ const mongoURI: string =
 		: String(NODE_ENV) == "DEV"
 		? "mmongodb+srv://tuhinthakur1233:AeXuM5uinxQZ6YhL@cluster0.wrvuqlr.mongodb.net/Dev"
 		: String(NODE_ENV) == "LOCAL"
-		? "mongodb+srv://tuhinthakur1233:DY2p354LuqgXPef0@cluster0.r5uuwtr.mongodb.net/Local_DB"
+		? "mongodb+srv://tuhinthakur1233:DY2p354LuqgXPef0@cluster0.r5uuwtr.mongodb.net/Hobi_app"
 		: "";
 
 console.log("First Connection", mongoURI);
