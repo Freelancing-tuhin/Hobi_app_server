@@ -23,7 +23,7 @@ export interface IOrganizer {
 	licenses_for_establishment: string;
 	licenses_for_activity_undertaken: string;
 	certifications: string[];
-	insurance_for_outdoor_activities: boolean;
+	insurance_for_outdoor_activities: string;
 	health_safety_compliance: string;
 	health_safety_documents: string[];
 }
