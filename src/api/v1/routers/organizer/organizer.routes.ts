@@ -1,5 +1,5 @@
 import express from "express";
-import { updateOrganizerDetails, updateOrganizerDocuments } from "../../controllers/provider/provider.controller";
+import { updateOrganizerDetails, updateOrganizerDocuments } from "../../controllers/organizer/organizer.controller";
 import { upload } from "../../../../middleware/multer.middleware";
 
 const router = express.Router();
