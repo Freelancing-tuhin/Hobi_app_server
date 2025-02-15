@@ -30,7 +30,6 @@ const organizerSchema: Schema<IOrganizer> = new Schema<IOrganizer>(
 		licenses_for_activity_undertaken: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		certifications: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		insurance_for_outdoor_activities: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
-		health_safety_compliance: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		health_safety_documents: SCHEMA_DEFINITION_PROPERTY.optionalNullObject
 	},
 	GENERAL_SCHEMA_OPTIONS
