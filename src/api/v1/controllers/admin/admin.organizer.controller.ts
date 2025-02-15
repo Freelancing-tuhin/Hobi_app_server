@@ -1,18 +1,15 @@
-import ProviderModel from "../../../../models/organizer.model";
 import { Request, Response } from "express";
 import { MESSAGE } from "../../../../constants/message";
+import OrganizerModel from "../../../../models/organizer.model";
 
-export const getAllProviders = async (req: Request, res: Response) => {
+export const getAllOrganizers = async (req: Request, res: Response) => {
 	try {
 		const { page = 1, limit = 10 } = req.query;
 
 		const skip = (Number(page) - 1) * Number(limit);
-		const providers = await ProviderModel.find().skip(skip).limit(Number(limit)).populate({
-			path: "provided_service",
-			select: "service_name description" // Select specific fields if required
-		});
+		const providers = await OrganizerModel.find().skip(skip).limit(Number(limit));
 
-		const totalProviders = await ProviderModel.countDocuments();
+		const totalProviders = await OrganizerModel.countDocuments();
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
@@ -33,17 +30,14 @@ export const getAllProviders = async (req: Request, res: Response) => {
 	}
 };
 
-export const editProvider = async (req: Request, res: Response) => {
+export const editOrganizers = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.query;
 		const updateData = req.body;
 
-		const updatedProvider = await ProviderModel.findByIdAndUpdate(id, updateData, {
+		const updatedProvider = await OrganizerModel.findByIdAndUpdate(id, updateData, {
 			new: true,
 			runValidators: true
-		}).populate({
-			path: "provided_service",
-			select: "service_name description"
 		});
 
 		if (!updatedProvider) {
@@ -70,7 +64,7 @@ export const deleteProvider = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.query;
 
-		const deletedProvider = await ProviderModel.findByIdAndDelete(id);
+		const deletedProvider = await OrganizerModel.findByIdAndDelete(id);
 
 		if (!deletedProvider) {
 			return res.status(404).json({
