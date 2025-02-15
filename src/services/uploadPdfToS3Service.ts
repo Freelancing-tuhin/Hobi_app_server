@@ -8,7 +8,7 @@ import { bucketName, s3Client, s3Url } from "../config/aws.config";
  * @returns {string|null} - The URL of the uploaded PDF or null if failed.
  */
 export const uploadPdfToS3Service = async (key: string, pdfBuffer: Buffer) => {
-	const pdfKey = `${key}/${Date.now()}-order-confirmation.pdf`;
+	const pdfKey = `${key}/${Date.now()}.pdf`;
 	const command = new PutObjectCommand({
 		Bucket: bucketName,
 		Key: pdfKey,
