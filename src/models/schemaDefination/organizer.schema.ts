@@ -17,14 +17,15 @@ const organizerSchema: Schema<IOrganizer> = new Schema<IOrganizer>(
 		is_verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
 
 		service_category: SCHEMA_DEFINITION_PROPERTY.optionalNullObjectId,
-
 		type_of_firm: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		certificate_of_incorporation: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+
 		PAN: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		GST: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		bank_account: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		bank_account_type: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		IFSC_code: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+
+		certificate_of_incorporation: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		licenses_for_establishment: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		licenses_for_activity_undertaken: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		certifications: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,

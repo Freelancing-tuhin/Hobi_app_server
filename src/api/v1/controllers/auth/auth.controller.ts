@@ -57,7 +57,8 @@ export const loginUser = async (req: any, res: Response) => {
 
 export const signUpOrganizer = async (req: Request, res: Response) => {
 	try {
-		const { full_name, age, phone, email, gender, address, password, profile_pic, service_category } = req.body;
+		const { full_name, age, phone, email, gender, address, password, profile_pic, service_category, type_of_firm } =
+			req.body;
 
 		const newUser = await new ProviderModel({
 			full_name,
@@ -69,6 +70,7 @@ export const signUpOrganizer = async (req: Request, res: Response) => {
 			password,
 			profile_pic,
 			service_category,
+			type_of_firm,
 			is_verified: false
 		}).save();
 

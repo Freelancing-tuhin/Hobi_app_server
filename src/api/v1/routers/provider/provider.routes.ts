@@ -1,8 +1,8 @@
 import express from "express";
-import { updatePastExperience } from "../../controllers/provider/provider.controller";
+import { updateOrganizerDetails } from "../../controllers/provider/provider.controller";
 
 const router = express.Router();
 
-router.route("/add-exp").patch(updatePastExperience);
+router.route("/update_profile").patch(updateOrganizerDetails);
 
 module.exports = router;

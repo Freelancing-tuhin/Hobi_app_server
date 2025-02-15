@@ -1,20 +1,14 @@
 import { Request, Response } from "express";
-import ProviderModel from "../../../../models/organizer.model";
+import OrganizerModel from "../../../../models/organizer.model";
 
-export const updatePastExperience = async (req: Request, res: Response) => {
+export const updateOrganizerDetails = async (req: Request, res: Response) => {
 	try {
-		const { providerId } = req.query;
-		const { past_experience } = req.body;
+		const { organizerId } = req.query;
+		const organizerData = req.body;
 
-		if (!past_experience || !Array.isArray(past_experience)) {
-			return res.status(400).json({
-				message: "Invalid past_experience data. It should be an array."
-			});
-		}
-
-		const updatedProvider = await ProviderModel.findByIdAndUpdate(
-			providerId,
-			{ $set: { past_experience } }, // Replaces the entire past_experience array
+		const updatedProvider = await OrganizerModel.findByIdAndUpdate(
+			organizerId,
+			{ $set: organizerData }, // Correctly applies dynamic updates
 			{ new: true, runValidators: true }
 		);
 
@@ -25,13 +19,43 @@ export const updatePastExperience = async (req: Request, res: Response) => {
 		}
 
 		return res.status(200).json({
-			message: "Past experience updated successfully",
+			message: "Organizer details updated successfully",
 			result: updatedProvider
 		});
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({
-			message: "Failed to update past experience",
+			message: "Failed to update organizer details",
+			error: error
+		});
+	}
+};
+
+export const updateOrganizerDocuments = async (req: Request, res: Response) => {
+	try {
+		const { organizerId } = req.query;
+		const organizerData = req.body;
+
+		const updatedProvider = await OrganizerModel.findByIdAndUpdate(
+			organizerId,
+			{ $set: organizerData }, // Correctly applies dynamic updates
+			{ new: true, runValidators: true }
+		);
+
+		if (!updatedProvider) {
+			return res.status(404).json({
+				message: "Provider not found"
+			});
+		}
+
+		return res.status(200).json({
+			message: "Organizer details updated successfully",
+			result: updatedProvider
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			message: "Failed to update organizer details",
 			error: error
 		});
 	}
