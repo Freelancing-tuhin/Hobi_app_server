@@ -16,19 +16,21 @@ const organizerSchema: Schema<IOrganizer> = new Schema<IOrganizer>(
 		ratings: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
 		is_verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
 
-		// Bank details
-		accountHolderName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		accountNumber: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		confirmAccountNumber: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		ifscCode: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		bankName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		branchName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		accountType: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		panNumber: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		aadharNumber: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		upiId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		gstNumber: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		canceledChequeUrl: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+		service_category: SCHEMA_DEFINITION_PROPERTY.optionalNullObjectId,
+
+		type_of_firm: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		certificate_of_incorporation: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		PAN: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		GST: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		bank_account: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		bank_account_type: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		IFSC_code: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		licenses_for_establishment: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
+		licenses_for_activity_undertaken: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
+		certifications: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
+		insurance_for_outdoor_activities: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
+		health_safety_compliance: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		health_safety_documents: SCHEMA_DEFINITION_PROPERTY.optionalNullObject
 	},
 	GENERAL_SCHEMA_OPTIONS
 );

@@ -11,16 +11,19 @@ export interface IOrganizer {
 
 	is_verified: boolean;
 
-	accountHolderName: string; // Name as per bank records
-	accountNumber: string; // Bank account number
-	confirmAccountNumber: string; // Confirmation field
-	ifscCode: string; // IFSC Code of the bank branch
-	bankName: string; // Name of the bank
-	branchName: string; // Bank branch name
-	accountType: string; // Type of account
-	panNumber: string; // PAN Card number for tax compliance
-	aadharNumber: string; // Aadhaar number for identity verification
-	upiId?: string; // Optional UPI ID for payments
-	gstNumber?: string; // Optional GST Number (if applicable)
-	canceledChequeUrl?: string; // URL of uploaded canceled cheque for verification
+	type_of_firm: string;
+	certificate_of_incorporation: string;
+	PAN: string;
+	GST: string;
+	bank_account: string;
+	bank_account_type: string;
+	IFSC_code: string;
+
+	service_category: any;
+	licenses_for_establishment: string;
+	licenses_for_activity_undertaken: string;
+	certifications: string[];
+	insurance_for_outdoor_activities: boolean;
+	health_safety_compliance: string;
+	health_safety_documents: string[];
 }
