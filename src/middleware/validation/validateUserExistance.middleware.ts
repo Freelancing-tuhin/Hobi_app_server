@@ -36,6 +36,11 @@ export const validateProviderExistenceMiddleware = async (req: any, res: Respons
 				message: "User does not exist"
 			});
 		}
+		if (userInstance?.is_verified === false) {
+			return res.status(404).json({
+				message: "User is not verified"
+			});
+		}
 
 		// Attach user instance to the request for further processing
 		req.user = userInstance;
