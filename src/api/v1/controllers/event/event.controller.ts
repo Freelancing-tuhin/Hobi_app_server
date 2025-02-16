@@ -166,3 +166,82 @@ export const getFilteredEvents = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+export const getUpcomingEvents = async (req: Request, res: Response) => {
+	try {
+		const currentDateTime = new Date(); // Get current date & time
+
+		console.log("Fetching upcoming events. Current time:", currentDateTime);
+
+		// Fetch all events first (since date fields are stored as strings)
+		const events = await EventModel.find();
+
+		// Filter events where eventDateTime (startDate + startTime) is in the future
+		const upcomingEvents = events.filter((event) => {
+			const eventDateTime = new Date(`${event.startDate}T${event.startTime}:00`); // Convert to Date object
+			return eventDateTime > currentDateTime; // Ensure it's strictly in the future
+		});
+
+		// Sort events by earliest event first
+		upcomingEvents.sort((a, b) => {
+			const dateA = new Date(`${a.startDate}T${a.startTime}:00`);
+			const dateB = new Date(`${b.startDate}T${b.startTime}:00`);
+			return dateA.getTime() - dateB.getTime();
+		});
+
+		// If no upcoming events are found
+		if (!upcomingEvents.length) {
+			return res.status(404).json({
+				message: MESSAGE.get.custom("No upcoming events found"),
+				result: []
+			});
+		}
+
+		return res.status(200).json({
+			message: MESSAGE.get.succ,
+			result: upcomingEvents
+		});
+	} catch (error) {
+		console.error("Error fetching upcoming events:", error);
+		return res.status(400).json({
+			message: MESSAGE.get.fail,
+			error
+		});
+	}
+};
+
+export const deleteEvent = async (req: Request, res: Response) => {
+	try {
+		const eventId = req.query.eventId as string; // Extract eventId from query params
+
+		// Validate eventId
+		if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
+			return res.status(400).json({
+				message: MESSAGE.delete.custom("Invalid or missing Event ID")
+			});
+		}
+
+		console.log("Deleting event with ID:", eventId);
+
+		// Find and delete the event
+		const deletedEvent = await EventModel.findByIdAndDelete(eventId).exec();
+
+		// If event not found
+		if (!deletedEvent) {
+			return res.status(404).json({
+				message: MESSAGE.delete.custom("Event not found")
+			});
+		}
+
+		return res.status(200).json({
+			message: MESSAGE.delete.succ,
+			result: deletedEvent // Optional: Return the deleted event details
+		});
+	} catch (error) {
+		console.error("Error deleting event:", error);
+		return res.status(500).json({
+			message: MESSAGE.delete.fail,
+			error
+		});
+	}
+};

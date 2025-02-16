@@ -5,6 +5,7 @@ import { IEvent } from "../../types/interface/event.interface";
 
 const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 	{
+		organizerId: SCHEMA_DEFINITION_PROPERTY.requiredObjectId,
 		title: SCHEMA_DEFINITION_PROPERTY.requiredString,
 		category: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		type: {

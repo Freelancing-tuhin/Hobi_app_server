@@ -1,4 +1,5 @@
 export interface IEvent {
+	organizerId: any;
 	title: string;
 	category: any;
 	type: string;
