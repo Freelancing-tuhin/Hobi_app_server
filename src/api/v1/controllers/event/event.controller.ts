@@ -139,23 +139,39 @@ export const updateEventBanner = async (req: Request, res: Response) => {
 
 export const getFilteredEvents = async (req: Request, res: Response) => {
 	try {
-		const filters = req.query; // Get all query parameters
+		const filters = { ...req.query };
+		const page = parseInt(req.query.page as string) || 1; // Default page = 1
+		const limit = parseInt(req.query.limit as string) || 10; // Default limit = 10
+		const skip = (page - 1) * limit;
+
+		// Remove pagination parameters from filters
+		delete filters.page;
+		delete filters.limit;
 
 		console.log("Filters received:", filters);
+		console.log(`Pagination - Page: ${page}, Limit: ${limit}`);
 
-		// Find events matching the filters
-		const events = await EventModel.find(filters);
+		// Find total matching events count
+		const totalEvents = await EventModel.countDocuments(filters);
+
+		// Find events with pagination
+		const events = await EventModel.find(filters).skip(skip).limit(limit);
 
 		// Check if events exist
 		if (!events.length) {
 			return res.status(404).json({
 				message: MESSAGE.get.custom("No events found matching the criteria"),
-				result: []
+				result: [],
+				totalPages: Math.ceil(totalEvents / limit),
+				currentPage: page
 			});
 		}
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
+			totalPages: Math.ceil(totalEvents / limit),
+			currentPage: page,
+			totalEvents,
 			result: events
 		});
 	} catch (error) {
@@ -170,13 +186,17 @@ export const getFilteredEvents = async (req: Request, res: Response) => {
 export const getUpcomingEvents = async (req: Request, res: Response) => {
 	try {
 		const currentDateTime = new Date(); // Get current date & time
-
 		console.log("Fetching upcoming events. Current time:", currentDateTime);
+
+		// Pagination parameters
+		const page = parseInt(req.query.page as string) || 1; // Default page = 1
+		const limit = parseInt(req.query.limit as string) || 10; // Default limit = 10
+		const skip = (page - 1) * limit;
 
 		// Fetch all events first (since date fields are stored as strings)
 		const events = await EventModel.find();
 
-		// Filter events where eventDateTime (startDate + startTime) is in the future
+		// Filter only upcoming events
 		const upcomingEvents = events.filter((event) => {
 			const eventDateTime = new Date(`${event.startDate}T${event.startTime}:00`); // Convert to Date object
 			return eventDateTime > currentDateTime; // Ensure it's strictly in the future
@@ -189,17 +209,26 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 			return dateA.getTime() - dateB.getTime();
 		});
 
+		// Pagination logic
+		const totalEvents = upcomingEvents.length;
+		const paginatedEvents = upcomingEvents.slice(skip, skip + limit);
+
 		// If no upcoming events are found
-		if (!upcomingEvents.length) {
+		if (!paginatedEvents.length) {
 			return res.status(404).json({
 				message: MESSAGE.get.custom("No upcoming events found"),
-				result: []
+				result: [],
+				totalPages: Math.ceil(totalEvents / limit),
+				currentPage: page
 			});
 		}
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
-			result: upcomingEvents
+			result: paginatedEvents,
+			totalPages: Math.ceil(totalEvents / limit),
+			currentPage: page,
+			totalEvents
 		});
 	} catch (error) {
 		console.error("Error fetching upcoming events:", error);
