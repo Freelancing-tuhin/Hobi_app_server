@@ -136,3 +136,33 @@ export const updateEventBanner = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+export const getFilteredEvents = async (req: Request, res: Response) => {
+	try {
+		const filters = req.query; // Get all query parameters
+
+		console.log("Filters received:", filters);
+
+		// Find events matching the filters
+		const events = await EventModel.find(filters);
+
+		// Check if events exist
+		if (!events.length) {
+			return res.status(404).json({
+				message: MESSAGE.get.custom("No events found matching the criteria"),
+				result: []
+			});
+		}
+
+		return res.status(200).json({
+			message: MESSAGE.get.succ,
+			result: events
+		});
+	} catch (error) {
+		console.error("Error fetching events:", error);
+		return res.status(400).json({
+			message: MESSAGE.get.fail,
+			error
+		});
+	}
+};
