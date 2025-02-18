@@ -4,6 +4,7 @@ import { validateAdminRouteExistenceMiddleware } from "../../../../middleware/va
 import { checkUserExistenceMiddleware } from "../../../../middleware/validation/checkUserExistence.middleware";
 import { hashPassword } from "../../../../middleware/auth/hashPassword.middleware";
 import { signUpOrganizer } from "../../controllers/auth/auth.controller";
+import { eventStats } from "../../controllers/admin/admin.event.controller";
 
 const router = express.Router();
 
@@ -11,5 +12,7 @@ router.route("/getAllOrganizers").get(getAllOrganizers);
 router.route("/editOrganizers").patch(editOrganizers);
 router.route("/deleteProvider").delete(validateAdminRouteExistenceMiddleware, deleteProvider);
 router.route("/createProvider").post(checkUserExistenceMiddleware, hashPassword, signUpOrganizer);
+
+router.route("/view-event-admin").get(eventStats);
 
 module.exports = router;
