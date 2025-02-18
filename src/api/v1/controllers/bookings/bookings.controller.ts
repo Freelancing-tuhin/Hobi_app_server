@@ -2,19 +2,18 @@ import { Request, Response } from "express";
 import BookingModel from "../../../../models/booking.model";
 import EventModel from "../../../../models/event.model";
 import { MESSAGE } from "../../../../constants/message";
+import Razorpay from "razorpay";
 
 export const createBooking = async (req: Request, res: Response) => {
 	try {
-		const { userId, eventId, ticketsCount } = req.body;
+		const { userId, eventId, ticketsCount, price, receipt } = req.body;
 
-		// Check if eventId and userId are provided
 		if (!eventId || !userId) {
 			return res.status(400).json({
 				message: MESSAGE.post.custom("Event ID and User ID are required")
 			});
 		}
 
-		// Check if the event exists
 		const event = await EventModel.findById(eventId);
 		if (!event) {
 			return res.status(404).json({
@@ -22,7 +21,6 @@ export const createBooking = async (req: Request, res: Response) => {
 			});
 		}
 
-		// Check if the user has already booked this event
 		const existingBooking = await BookingModel.findOne({ userId, eventId });
 		if (existingBooking) {
 			return res.status(400).json({
@@ -30,23 +28,29 @@ export const createBooking = async (req: Request, res: Response) => {
 			});
 		}
 
-		// Prepare the booking payload
 		const payload = {
 			userId,
 			eventId,
 			amountPaid: 0,
-			ticketsCount: ticketsCount || 1, // Default to 1 ticket if not provided
+			ticketsCount: ticketsCount || 1,
 			transactionId: null,
-			paymentStatus: "Pending" // Auto mark as pending as no transaction is yet
+			paymentStatus: "Pending"
 		};
 
-		// Create and save the new booking
+		const instance = new Razorpay({ key_id: "rzp_test_WOvg0OAJCnGejI", key_secret: "ZpwuC7sSd9rer6BJLvY3HId9" });
+
+		const response = await instance.orders.create({
+			amount: price * 100,
+			currency: "INR",
+			receipt: receipt
+		});
+
 		const newBooking = await new BookingModel(payload).save();
 
-		// Return success response with the newly created booking
 		return res.status(200).json({
 			message: MESSAGE.post.succ,
-			result: newBooking
+			result: newBooking,
+			payment: response
 		});
 	} catch (error) {
 		console.error(error);
@@ -61,7 +65,6 @@ export const updateBooking = async (req: Request, res: Response) => {
 	try {
 		const { bookingId, transactionId, paymentStatus, amountPaid } = req.body;
 
-		// Find the booking by ID
 		const booking = await BookingModel.findById(bookingId);
 		if (!booking) {
 			return res.status(404).json({
@@ -69,15 +72,12 @@ export const updateBooking = async (req: Request, res: Response) => {
 			});
 		}
 
-		// Update the transaction ID and payment status
 		booking.amountPaid = amountPaid;
 		booking.transactionId = transactionId;
 		booking.paymentStatus = paymentStatus;
 
-		// Save the updated booking
 		const updatedBooking = await booking.save();
 
-		// Return success response
 		return res.status(200).json({
 			message: MESSAGE.put.succ,
 			result: updatedBooking
