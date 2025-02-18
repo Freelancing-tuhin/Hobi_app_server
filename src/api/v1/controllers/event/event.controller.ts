@@ -225,10 +225,10 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
-			result: paginatedEvents,
 			totalPages: Math.ceil(totalEvents / limit),
 			currentPage: page,
-			totalEvents
+			totalEvents,
+			result: paginatedEvents
 		});
 	} catch (error) {
 		console.error("Error fetching upcoming events:", error);

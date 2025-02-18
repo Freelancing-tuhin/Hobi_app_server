@@ -7,6 +7,7 @@ import {
 	updateEventBanner
 } from "../../controllers/event/event.controller";
 import { upload } from "../../../../middleware/multer.middleware";
+import { getEventById } from "../../controllers/event/public.event.controller";
 
 const router = Router();
 
@@ -18,6 +19,8 @@ router.patch("/update-event-banner", upload.fields([{ name: "banner_Image", maxC
 
 router.get("/get-events", getFilteredEvents);
 
-router.get("/get-upcoming--events", getUpcomingEvents);
+router.get("/get-upcoming-events", getUpcomingEvents);
+
+router.get("/view-event", getEventById);
 
 module.exports = router;

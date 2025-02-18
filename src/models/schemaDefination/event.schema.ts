@@ -5,7 +5,12 @@ import { IEvent } from "../../types/interface/event.interface";
 
 const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 	{
-		organizerId: SCHEMA_DEFINITION_PROPERTY.requiredObjectId,
+		organizerId: {
+			type: Schema.Types.ObjectId,
+			ref: "organizers", // Ensure this matches your User model name
+			required: true
+		},
+
 		title: SCHEMA_DEFINITION_PROPERTY.requiredString,
 		category: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		type: {
