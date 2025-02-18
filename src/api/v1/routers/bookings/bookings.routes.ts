@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { createBooking } from "../../controllers/bookings/bookings.controller";
+import { createBooking, updateBooking } from "../../controllers/bookings/bookings.controller";
 
 const router = Router();
 
 router.post("/create-booking", createBooking);
+
+router.patch("/confirm-booking", updateBooking);
 
 // router.get("/get-user-bookings", getUserBookings);
 

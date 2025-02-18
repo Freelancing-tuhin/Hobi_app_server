@@ -5,14 +5,16 @@ import { MESSAGE } from "../../../../constants/message";
 
 export const createBooking = async (req: Request, res: Response) => {
 	try {
-		const { userId, eventId, ticketsCount, transactionId, amountPaid } = req.body;
+		const { userId, eventId, ticketsCount } = req.body;
 
+		// Check if eventId and userId are provided
 		if (!eventId || !userId) {
 			return res.status(400).json({
 				message: MESSAGE.post.custom("Event ID and User ID are required")
 			});
 		}
 
+		// Check if the event exists
 		const event = await EventModel.findById(eventId);
 		if (!event) {
 			return res.status(404).json({
@@ -20,17 +22,28 @@ export const createBooking = async (req: Request, res: Response) => {
 			});
 		}
 
+		// Check if the user has already booked this event
+		const existingBooking = await BookingModel.findOne({ userId, eventId });
+		if (existingBooking) {
+			return res.status(400).json({
+				message: MESSAGE.post.custom("You have already booked this event")
+			});
+		}
+
+		// Prepare the booking payload
 		const payload = {
 			userId,
 			eventId,
-			amountPaid,
+			amountPaid: 0,
 			ticketsCount: ticketsCount || 1, // Default to 1 ticket if not provided
-			transactionId: transactionId || null,
-			paymentStatus: transactionId ? "Completed" : "Pending" // Auto mark as completed if transaction ID is present
+			transactionId: null,
+			paymentStatus: "Pending" // Auto mark as pending as no transaction is yet
 		};
 
+		// Create and save the new booking
 		const newBooking = await new BookingModel(payload).save();
 
+		// Return success response with the newly created booking
 		return res.status(200).json({
 			message: MESSAGE.post.succ,
 			result: newBooking
@@ -39,6 +52,40 @@ export const createBooking = async (req: Request, res: Response) => {
 		console.error(error);
 		return res.status(400).json({
 			message: MESSAGE.post.fail,
+			error
+		});
+	}
+};
+
+export const updateBooking = async (req: Request, res: Response) => {
+	try {
+		const { bookingId, transactionId, paymentStatus, amountPaid } = req.body;
+
+		// Find the booking by ID
+		const booking = await BookingModel.findById(bookingId);
+		if (!booking) {
+			return res.status(404).json({
+				message: MESSAGE.put.custom("Booking not found")
+			});
+		}
+
+		// Update the transaction ID and payment status
+		booking.amountPaid = amountPaid;
+		booking.transactionId = transactionId;
+		booking.paymentStatus = paymentStatus;
+
+		// Save the updated booking
+		const updatedBooking = await booking.save();
+
+		// Return success response
+		return res.status(200).json({
+			message: MESSAGE.put.succ,
+			result: updatedBooking
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: MESSAGE.put.fail,
 			error
 		});
 	}
