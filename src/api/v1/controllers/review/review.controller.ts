@@ -1,30 +1,35 @@
 import { Request, Response } from "express";
 import ReviewModel from "../../../../models/review.model";
 import { MESSAGE } from "../../../../constants/message";
-import ProviderModel from "../../../../models/organizer.model";
+import EventModel from "../../../../models/event.model"; // Updated to reference events instead of providers
 
-// Create Review
+// Create Event Review
 export const createReview = async (req: Request, res: Response) => {
 	try {
-		const { comment, rating, userId, providerId } = req.body;
+		const { comment, rating, userId, eventId } = req.body;
+
+		// Validate required fields
+		if (!comment || !rating || !userId || !eventId) {
+			return res.status(400).json({ message: "Missing required fields." });
+		}
 
 		// Save the new review
 		const newReview = await new ReviewModel({
 			comment,
 			rating,
 			userId,
-			providerId
+			eventId
 		}).save();
 
-		// Fetch all reviews for the given provider to recalculate the average rating
-		const reviews = await ReviewModel.find({ providerId });
+		// Fetch all reviews for the given event to recalculate the average rating
+		const reviews = await ReviewModel.find({ eventId });
 
 		if (reviews.length > 0) {
 			const totalRatings = reviews.reduce((sum, review) => sum + review.rating, 0);
 			const averageRating = totalRatings / reviews.length;
 
-			// Update provider's average rating
-			await ProviderModel.findByIdAndUpdate(providerId, { ratings: averageRating });
+			// Update event's average rating
+			await EventModel.findByIdAndUpdate(eventId, { ratings: averageRating });
 		}
 
 		return res.status(200).json({
@@ -33,7 +38,7 @@ export const createReview = async (req: Request, res: Response) => {
 		});
 	} catch (error) {
 		console.error(error);
-		return res.status(400).json({
+		return res.status(500).json({
 			message: MESSAGE.post.fail,
 			error
 		});
@@ -90,14 +95,14 @@ export const getAllReviews = async (req: Request, res: Response) => {
 // Get Reviews by Filter (userId, providerId, or rating)
 export const getReviewsByFilter = async (req: Request, res: Response) => {
 	try {
-		const { userId, providerId, rating } = req.query;
+		const { userId, eventId, rating } = req.query;
 		const filter: any = {};
 
 		if (userId) filter.userId = userId;
-		if (providerId) filter.providerId = providerId;
+		if (eventId) filter.eventId = eventId;
 		if (rating) filter.rating = rating;
 
-		const filteredReviews = await ReviewModel.find(filter).populate("userId providerId");
+		const filteredReviews = await ReviewModel.find(filter).populate("userId eventId");
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,

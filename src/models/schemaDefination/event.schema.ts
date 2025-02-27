@@ -35,7 +35,8 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 		isTicketed: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
 		ticketName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		ticketPrice: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
-		verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean
+		verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
+		ratings: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber
 	},
 	GENERAL_SCHEMA_OPTIONS
 );

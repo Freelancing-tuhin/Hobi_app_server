@@ -14,6 +14,7 @@ export interface IEvent {
 	isTicketed: boolean;
 	ticketName?: string;
 	ticketPrice?: number;
+	ratings?: number;
 
 	verified: boolean;
 }
