@@ -1,10 +1,13 @@
 import express from "express";
 import { updateOrganizerDetails, updateOrganizerDocuments } from "../../controllers/organizer/organizer.controller";
 import { upload } from "../../../../middleware/multer.middleware";
+import { getOrganizerStats } from "../../controllers/organizer/dashboard.controller";
 
 const router = express.Router();
 
 router.route("/update_profile").patch(updateOrganizerDetails);
+
+router.route("/get-basic-stats").get(getOrganizerStats);
 
 router.route("/update_documents").patch(
 	upload.fields([
