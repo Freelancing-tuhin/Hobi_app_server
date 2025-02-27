@@ -25,6 +25,7 @@ export const createEvent = async (req: Request, res: Response) => {
 		}
 		const payload = {
 			...eventDetails,
+			verified: false,
 			banner_Image: banner_Image_Url
 		};
 		const newEvent = await new EventModel(payload).save();

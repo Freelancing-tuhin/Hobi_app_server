@@ -11,22 +11,31 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 			required: true
 		},
 
-		title: SCHEMA_DEFINITION_PROPERTY.requiredString,
+		title: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		category: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		type: {
 			type: String,
 			enum: ["Single", "Recurring"],
 			required: true
 		},
-		startDate: SCHEMA_DEFINITION_PROPERTY.requiredString,
-		startTime: SCHEMA_DEFINITION_PROPERTY.requiredString,
-		endTime: SCHEMA_DEFINITION_PROPERTY.requiredString,
-		location: SCHEMA_DEFINITION_PROPERTY.requiredString,
+		startDate: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		startTime: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		endTime: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		location: {
+			type: {
+				address: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+				latitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+				longitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+			},
+			default: null
+		},
+
 		description: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		banner_Image: SCHEMA_DEFINITION_PROPERTY.requiredString,
+		banner_Image: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		isTicketed: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
 		ticketName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		ticketPrice: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber
+		ticketPrice: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+		verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean
 	},
 	GENERAL_SCHEMA_OPTIONS
 );

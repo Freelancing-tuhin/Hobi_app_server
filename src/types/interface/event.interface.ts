@@ -6,7 +6,7 @@ export interface IEvent {
 	startDate: string;
 	startTime: string;
 	endTime: string;
-	location: string;
+	location: any;
 	description: string;
 
 	banner_Image: string;
@@ -14,4 +14,6 @@ export interface IEvent {
 	isTicketed: boolean;
 	ticketName?: string;
 	ticketPrice?: number;
+
+	verified: boolean;
 }
