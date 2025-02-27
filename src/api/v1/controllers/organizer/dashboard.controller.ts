@@ -21,12 +21,21 @@ export const getOrganizerStats = async (req: Request, res: Response) => {
 				totalBookings: 0,
 				totalIncome: 0,
 				pendingBookings: 0,
-				confirmedBookings: 0
+				confirmedBookings: 0,
+				uniqueUsers: 0,
+				thisMonthUniqueUsers: 0, // New field
+				lastMonthUniqueUsers: 0 // New field
 			});
 		}
 
 		// Extract event IDs
 		const eventIds = events.map((event) => event._id);
+
+		// Get start and end of the current and previous months
+		const now = new Date();
+		const firstDayOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+		const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+		const lastDayOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
 		// Aggregate booking stats
 		const bookings = await BookingModel.aggregate([
@@ -48,23 +57,80 @@ export const getOrganizerStats = async (req: Request, res: Response) => {
 			}
 		]);
 
+		// Count total unique users who made bookings
+		const uniqueUsersData = await BookingModel.aggregate([
+			{
+				$match: {
+					eventId: { $in: eventIds }
+				}
+			},
+			{
+				$group: {
+					_id: "$userId" // Assuming `userId` exists in BookingModel
+				}
+			},
+			{
+				$count: "uniqueUsers"
+			}
+		]);
+
+		// Count unique users for this month and last month
+		const monthlyUniqueUsers = await BookingModel.aggregate([
+			{
+				$match: {
+					eventId: { $in: eventIds },
+					createdAt: { $gte: firstDayOfLastMonth } // Filter only last month & this month
+				}
+			},
+			{
+				$group: {
+					_id: {
+						$cond: [{ $gte: ["$createdAt", firstDayOfThisMonth] }, "thisMonth", "lastMonth"]
+					},
+					users: { $addToSet: "$userId" } // Collect unique user IDs
+				}
+			},
+			{
+				$project: {
+					_id: 1,
+					uniqueUsers: { $size: "$users" } // Count unique users
+				}
+			}
+		]);
+
+		// Initialize monthly unique user stats
+		let thisMonthUniqueUsers = 0;
+		let lastMonthUniqueUsers = 0;
+
+		// Assign values from aggregation
+		monthlyUniqueUsers.forEach(({ _id, uniqueUsers }) => {
+			if (_id === "thisMonth") thisMonthUniqueUsers = uniqueUsers;
+			if (_id === "lastMonth") lastMonthUniqueUsers = uniqueUsers;
+		});
+
+		// Get total unique users count (default to 0 if no bookings exist)
+		const uniqueUsers = uniqueUsersData.length > 0 ? uniqueUsersData[0].uniqueUsers : 0;
+
 		// Initialize stats
 		const stats: any = {
 			totalEvents: events.length,
 			totalBookings: 0,
 			totalIncome: 0,
 			pendingBookings: 0,
-			confirmedBookings: 0
+			confirmedBookings: 0,
+			uniqueUsers,
+			thisMonthUniqueUsers,
+			lastMonthUniqueUsers
 		};
 
 		// Process aggregated data
 		bookings.forEach(({ _id, totalBookings, totalIncome }) => {
 			stats.totalBookings += totalBookings;
-			// if (_id === "pending") stats.pendingBookings = totalBookings;
-			// if (_id === "confirmed") {
-			stats.confirmedBookings = totalBookings;
-			stats.totalIncome = totalIncome; // Only confirmed payments are counted
-			// }
+			if (_id === "pending") stats.pendingBookings = totalBookings;
+			if (_id === "confirmed") {
+				stats.confirmedBookings = totalBookings;
+				stats.totalIncome = totalIncome;
+			}
 		});
 
 		return res.status(200).json(stats);
