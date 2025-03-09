@@ -27,14 +27,19 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 				latitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 				longitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString
 			},
-			default: null
+			default: null,
+			required: false
 		},
 
 		description: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		banner_Image: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		isTicketed: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
-		ticketName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		ticketPrice: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+		tickets: [
+			{
+				ticketName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+				ticketPrice: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber
+			}
+		],
 		verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
 		ratings: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber
 	},

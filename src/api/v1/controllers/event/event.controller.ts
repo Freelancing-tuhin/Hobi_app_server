@@ -13,9 +13,11 @@ export const createEvent = async (req: Request, res: Response) => {
 				message: MESSAGE.post.custom("banner_Image not found")
 			});
 		}
+
 		const banner_Image = req.files["banner_Image"][0];
 		const banner_Image_Buffer = banner_Image.buffer;
 		let banner_Image_Url: any = "";
+
 		try {
 			banner_Image_Url = (await uploadImageToS3Service("banner_Image", banner_Image_Buffer)) || "";
 		} catch (error) {
@@ -23,11 +25,32 @@ export const createEvent = async (req: Request, res: Response) => {
 				message: MESSAGE.post.fail
 			});
 		}
+
+		// Parse tickets array safely
+		let tickets: any = [];
+		if (eventDetails.tickets) {
+			try {
+				const parsedTickets = JSON.parse(eventDetails.tickets); // Ensure it's an array
+				if (Array.isArray(parsedTickets)) {
+					tickets = parsedTickets.map((ticket) => ({
+						ticketName: ticket.ticketName || null,
+						ticketPrice: ticket.ticketPrice || 0
+					}));
+				}
+			} catch (error) {
+				return res.status(400).json({
+					message: "Invalid tickets format, must be a valid JSON array"
+				});
+			}
+		}
+
 		const payload = {
 			...eventDetails,
 			verified: false,
-			banner_Image: banner_Image_Url
+			banner_Image: banner_Image_Url,
+			tickets
 		};
+
 		const newEvent = await new EventModel(payload).save();
 
 		return res.status(200).json({
@@ -156,7 +179,10 @@ export const getFilteredEvents = async (req: Request, res: Response) => {
 		const totalEvents = await EventModel.countDocuments(filters);
 
 		// Find events with pagination
-		const events = await EventModel.find(filters).skip(skip).limit(limit);
+		const events = await EventModel.find(filters)
+			.populate("organizerId", "full_name email")
+			.skip(skip)
+			.limit(limit);
 
 		// Check if events exist
 		if (!events.length) {

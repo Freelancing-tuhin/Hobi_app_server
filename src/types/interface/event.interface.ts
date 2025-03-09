@@ -12,6 +12,8 @@ export interface IEvent {
 	banner_Image: string;
 
 	isTicketed: boolean;
+	tickets: any;
+
 	ticketName?: string;
 	ticketPrice?: number;
 	ratings?: number;
