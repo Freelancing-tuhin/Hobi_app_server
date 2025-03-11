@@ -23,7 +23,7 @@ app.use(json());
 app.use(express.json());
 app.use(bodyParser.json());
 app.get("/", (req, res) => {
-	res.send(`<h1>Hobi Server running successfully</h1>`);
+	res.send(`<h1>Hobi app Server running successfully</h1>`);
 });
 
 app.use("/api/v1", require("./api/v1/routers/routes.index"));
