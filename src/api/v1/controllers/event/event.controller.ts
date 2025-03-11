@@ -58,9 +58,9 @@ export const createEvent = async (req: Request, res: Response) => {
 			"Event Created",
 			"A ripple in the stream, a sudden bloom of possibility. A fresh chapter opens: new event created.",
 			newEvent?._id,
-			"text",
+			"id",
 			newEvent?.organizerId,
-			"user",
+			"organizers",
 			`${newEvent?._id}`,
 			"events"
 		);
