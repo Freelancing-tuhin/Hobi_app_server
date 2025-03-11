@@ -24,7 +24,7 @@ app.use(json());
 app.use(express.json());
 app.use(bodyParser.json());
 app.get("/", (req, res) => {
-	res.sendFile(path.join(__dirname, "public", "index.html"));
+	res.sendFile(path.join(__dirname, "/", "index.html"));
 });
 
 app.use("/api/v1", require("./api/v1/routers/routes.index"));
