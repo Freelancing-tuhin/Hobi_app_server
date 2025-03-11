@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser, { json } from "body-parser";
 import connectDb from "./config/db.config";
+import path from "path";
 
 // dotenv.config();
 const app = express();
@@ -23,7 +24,7 @@ app.use(json());
 app.use(express.json());
 app.use(bodyParser.json());
 app.get("/", (req, res) => {
-	res.send(`<h1>Hobi app Server running successfully</h1>`);
+	res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.use("/api/v1", require("./api/v1/routers/routes.index"));
