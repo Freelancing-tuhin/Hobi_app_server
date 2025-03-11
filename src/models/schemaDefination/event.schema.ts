@@ -21,15 +21,15 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 		startDate: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		startTime: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		endTime: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		location: {
-			type: {
-				address: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-				latitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-				longitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString
-			},
-			default: null,
-			required: false
-		},
+		// location: {
+		// 	type: {
+		// 		address: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		// 		latitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		// 		longitude: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+		// 	},
+		// 	default: null,
+		// 	required: false
+		// },
 
 		description: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		banner_Image: SCHEMA_DEFINITION_PROPERTY.optionalNullString,

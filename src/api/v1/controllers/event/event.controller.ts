@@ -3,6 +3,7 @@ import EventModel from "../../../../models/event.model";
 import { MESSAGE } from "../../../../constants/message";
 import { uploadImageToS3Service } from "../../../../services/uploadImageService";
 import mongoose from "mongoose";
+import { createNotification } from "../../../../types/interface/notifications";
 
 export const createEvent = async (req: Request, res: Response) => {
 	try {
@@ -52,6 +53,17 @@ export const createEvent = async (req: Request, res: Response) => {
 		};
 
 		const newEvent = await new EventModel(payload).save();
+
+		await createNotification(
+			"Event Created",
+			"A ripple in the stream, a sudden bloom of possibility. A fresh chapter opens: new event created.",
+			newEvent?._id,
+			"text",
+			newEvent?.organizerId,
+			"user",
+			newEvent?._id,
+			"events"
+		);
 
 		return res.status(200).json({
 			message: MESSAGE.post.succ,
