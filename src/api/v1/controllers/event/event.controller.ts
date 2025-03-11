@@ -61,7 +61,7 @@ export const createEvent = async (req: Request, res: Response) => {
 			"text",
 			newEvent?.organizerId,
 			"user",
-			newEvent?._id,
+			`${newEvent?._id}`,
 			"events"
 		);
 
