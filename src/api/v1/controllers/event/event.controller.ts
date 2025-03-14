@@ -173,55 +173,6 @@ export const updateEventBanner = async (req: Request, res: Response) => {
 	}
 };
 
-export const getFilteredEvents = async (req: Request, res: Response) => {
-	try {
-		const filters = { ...req.query };
-		const page = parseInt(req.query.page as string) || 1; // Default page = 1
-		const limit = parseInt(req.query.limit as string) || 10; // Default limit = 10
-		const skip = (page - 1) * limit;
-
-		// Remove pagination parameters from filters
-		delete filters.page;
-		delete filters.limit;
-
-		console.log("Filters received:", filters);
-		console.log(`Pagination - Page: ${page}, Limit: ${limit}`);
-
-		// Find total matching events count
-		const totalEvents = await EventModel.countDocuments(filters);
-
-		// Find events with pagination
-		const events = await EventModel.find(filters)
-			.populate("organizerId", "full_name email")
-			.skip(skip)
-			.limit(limit);
-
-		// Check if events exist
-		if (!events.length) {
-			return res.status(404).json({
-				message: MESSAGE.get.custom("No events found matching the criteria"),
-				result: [],
-				totalPages: Math.ceil(totalEvents / limit),
-				currentPage: page
-			});
-		}
-
-		return res.status(200).json({
-			message: MESSAGE.get.succ,
-			totalPages: Math.ceil(totalEvents / limit),
-			currentPage: page,
-			totalEvents,
-			result: events
-		});
-	} catch (error) {
-		console.error("Error fetching events:", error);
-		return res.status(400).json({
-			message: MESSAGE.get.fail,
-			error
-		});
-	}
-};
-
 export const getUpcomingEvents = async (req: Request, res: Response) => {
 	try {
 		const currentDateTime = new Date(); // Get current date & time
@@ -309,6 +260,53 @@ export const deleteEvent = async (req: Request, res: Response) => {
 		console.error("Error deleting event:", error);
 		return res.status(500).json({
 			message: MESSAGE.delete.fail,
+			error
+		});
+	}
+};
+
+export const getFilteredEvents = async (req: Request, res: Response) => {
+	try {
+		const { search, page = "1", limit = "10", ...filters } = req.query;
+
+		const pageNum = parseInt(page as string, 10);
+		const limitNum = parseInt(limit as string, 10);
+		const skip = (pageNum - 1) * limitNum;
+
+		// Regex search for title
+		if (search) {
+			filters.title = { $regex: search, $options: "i" }; // Case-insensitive search
+		}
+
+		console.log("Filters received:", filters);
+		console.log(`Pagination - Page: ${pageNum}, Limit: ${limitNum}`);
+
+		const totalEvents = await EventModel.countDocuments(filters);
+		const events = await EventModel.find(filters)
+			.populate("organizerId", "full_name email")
+			.skip(skip)
+			.limit(limitNum);
+
+		if (!events.length) {
+			return res.status(404).json({
+				message: MESSAGE.get.custom("No events found matching the criteria"),
+				result: [],
+				totalPages: Math.ceil(totalEvents / limitNum),
+				currentPage: pageNum
+			});
+		}
+
+		return res.status(200).json({
+			message: MESSAGE.get.succ,
+			totalPages: Math.ceil(totalEvents / limitNum),
+			currentPage: pageNum,
+			totalEvents,
+			result: events
+		});
+	} catch (error) {
+		console.error("Error fetching events:", error);
+		return res.status(400).json({
+			message: MESSAGE.get.fail,
 			error
 		});
 	}

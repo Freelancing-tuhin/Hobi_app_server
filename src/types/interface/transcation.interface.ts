@@ -1,6 +1,8 @@
 export interface ITransaction {
-    type: "credit" | "debit";
-    amount: number;
-    date: Date;
-    referenceId?: string;
-  }
+	type: "credit" | "debit" | "transfer" | "bill_payment" | "booking";
+	amount: string;
+	status: "success" | "failed" | "pending";
+	senderId: string;
+	receiverId?: string;
+	reference?: string;
+}

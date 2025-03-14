@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.route("/create").post(createService);
 
-router.route("/edit").put(editService);
+router.route("/edit").patch(editService);
 
 router.route("/delete").delete(deleteService);
 
