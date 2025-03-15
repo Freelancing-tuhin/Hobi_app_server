@@ -10,6 +10,7 @@ import { checkUserExistenceMiddleware } from "../../../../middleware/validation/
 import { hashPassword } from "../../../../middleware/auth/hashPassword.middleware";
 import { signUpOrganizer } from "../../controllers/auth/auth.controller";
 import { eventStats } from "../../controllers/admin/admin.event.controller";
+import { dashBoardStats } from "../../controllers/admin/adminDashboard.controller";
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.route("/deleteProvider").delete(validateAdminRouteExistenceMiddleware, de
 router.route("/createProvider").post(checkUserExistenceMiddleware, hashPassword, signUpOrganizer);
 
 router.route("/view-event-admin").get(eventStats);
+router.route("/dashboard-stats").get(dashBoardStats);
 
 module.exports = router;
