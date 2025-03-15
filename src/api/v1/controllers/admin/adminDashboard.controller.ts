@@ -10,6 +10,20 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 		const startOfLastMonth = moment().subtract(1, "month").startOf("month").toDate();
 		const endOfLastMonth = moment().subtract(1, "month").endOf("month").toDate();
 
+		const monthlyEvents = await EventModel.aggregate([
+			{
+				$group: {
+					_id: { $month: "$createdAt" },
+					total: { $sum: 1 }
+				}
+			},
+			{
+				$sort: { _id: 1 }
+			}
+		]);
+
+		const eventsByMonth = monthlyEvents.map((event) => event.total).filter((total) => total > 0);
+
 		const [
 			totalEvents,
 			totalIncome,
@@ -40,7 +54,8 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 				completedBookings,
 				totalUniqueCustomers: totalUniqueCustomers.length,
 				thisMonthUniqueCustomers: thisMonthUniqueCustomers.length,
-				lastMonthUniqueCustomers: lastMonthUniqueCustomers.length
+				lastMonthUniqueCustomers: lastMonthUniqueCustomers.length,
+				eventsByMonth
 			}
 		});
 	} catch (error) {
