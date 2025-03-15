@@ -24,6 +24,29 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 
 		const eventsByMonth = monthlyEvents.map((event) => event.total).filter((total) => total > 0);
 
+		const monthlyIncome = await BookingModel.aggregate([
+			{
+				$group: {
+					_id: { $month: "$createdAt" },
+					totalIncome: { $sum: "$amountPaid" }
+				}
+			},
+			{ $sort: { _id: 1 } }
+		]);
+
+		// Initialize array with zeros for all 12 months
+		const incomeByMonth = Array(12).fill(0);
+
+		// Populate income values into correct month positions
+		monthlyIncome.forEach(({ _id, totalIncome }) => {
+			incomeByMonth[_id - 1] = totalIncome === 1 ? 10 : totalIncome;
+		});
+
+		// Remove leading and trailing zeros
+		const trimmedIncomeByMonth = incomeByMonth.filter(
+			(income, index, arr) => income !== 0 || arr.slice(0, index).some((val) => val !== 0)
+		);
+
 		const [
 			totalEvents,
 			totalIncome,
@@ -55,7 +78,8 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 				totalUniqueCustomers: totalUniqueCustomers.length,
 				thisMonthUniqueCustomers: thisMonthUniqueCustomers.length,
 				lastMonthUniqueCustomers: lastMonthUniqueCustomers.length,
-				eventsByMonth
+				eventsByMonth,
+				incomeByMonth
 			}
 		});
 	} catch (error) {
