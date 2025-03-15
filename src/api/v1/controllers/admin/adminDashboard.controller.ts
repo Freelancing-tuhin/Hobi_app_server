@@ -2,18 +2,33 @@ import { Request, Response } from "express";
 import EventModel from "../../../../models/event.model";
 import BookingModel from "../../../../models/booking.model";
 import { MESSAGE } from "../../../../constants/message";
+import moment from "moment";
 
 export const dashBoardStats = async (req: Request, res: Response) => {
 	try {
-		const [totalEvents, totalIncome, totalBookings, pendingBookings, completedBookings, uniqueCustomers] =
-			await Promise.all([
-				EventModel.countDocuments(),
-				BookingModel.aggregate([{ $group: { _id: null, total: { $sum: "$amountPaid" } } }]),
-				BookingModel.countDocuments(),
-				BookingModel.countDocuments({ paymentStatus: "Pending" }),
-				BookingModel.countDocuments({ paymentStatus: "Completed" }),
-				BookingModel.distinct("userId")
-			]);
+		const startOfThisMonth = moment().startOf("month").toDate();
+		const startOfLastMonth = moment().subtract(1, "month").startOf("month").toDate();
+		const endOfLastMonth = moment().subtract(1, "month").endOf("month").toDate();
+
+		const [
+			totalEvents,
+			totalIncome,
+			totalBookings,
+			pendingBookings,
+			completedBookings,
+			totalUniqueCustomers,
+			thisMonthUniqueCustomers,
+			lastMonthUniqueCustomers
+		] = await Promise.all([
+			EventModel.countDocuments(),
+			BookingModel.aggregate([{ $group: { _id: null, total: { $sum: "$amountPaid" } } }]),
+			BookingModel.countDocuments(),
+			BookingModel.countDocuments({ paymentStatus: "Pending" }),
+			BookingModel.countDocuments({ paymentStatus: "Completed" }),
+			BookingModel.distinct("userId"),
+			BookingModel.distinct("userId", { createdAt: { $gte: startOfThisMonth } }),
+			BookingModel.distinct("userId", { createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } })
+		]);
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
@@ -23,7 +38,9 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 				totalBookings,
 				pendingBookings,
 				completedBookings,
-				totalUniqueCustomers: uniqueCustomers.length
+				totalUniqueCustomers: totalUniqueCustomers.length,
+				thisMonthUniqueCustomers: thisMonthUniqueCustomers.length,
+				lastMonthUniqueCustomers: lastMonthUniqueCustomers.length
 			}
 		});
 	} catch (error) {
