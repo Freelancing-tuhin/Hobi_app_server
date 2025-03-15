@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import EventModel from "../../../../models/event.model";
 import BookingModel from "../../../../models/booking.model";
+import UserModel from "../../../../models/user.model";
 import { MESSAGE } from "../../../../constants/message";
 import moment from "moment";
 
@@ -22,7 +23,10 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 			}
 		]);
 
-		const eventsByMonth = monthlyEvents.map((event) => event.total).filter((total) => total > 0);
+		const eventsByMonth = Array(12).fill(0);
+		monthlyEvents.forEach((event) => {
+			eventsByMonth[event._id - 1] = event.total;
+		});
 
 		const monthlyIncome = await BookingModel.aggregate([
 			{
@@ -31,21 +35,49 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 					totalIncome: { $sum: "$amountPaid" }
 				}
 			},
-			{ $sort: { _id: 1 } }
+			{
+				$sort: { _id: 1 }
+			}
 		]);
 
-		// Initialize array with zeros for all 12 months
 		const incomeByMonth = Array(12).fill(0);
-
-		// Populate income values into correct month positions
-		monthlyIncome.forEach(({ _id, totalIncome }) => {
-			incomeByMonth[_id - 1] = totalIncome === 1 ? 10 : totalIncome;
+		monthlyIncome.forEach((income) => {
+			incomeByMonth[income._id - 1] = income.totalIncome === 1 ? 10 : income.totalIncome;
 		});
 
-		// Remove leading and trailing zeros
-		const trimmedIncomeByMonth = incomeByMonth.filter(
-			(income, index, arr) => income !== 0 || arr.slice(0, index).some((val) => val !== 0)
-		);
+		const monthlyUsers = await UserModel.aggregate([
+			{
+				$group: {
+					_id: { $month: "$createdAt" },
+					totalUsers: { $sum: 1 }
+				}
+			},
+			{
+				$sort: { _id: 1 }
+			}
+		]);
+
+		const userByMonth = Array(12).fill(0);
+		monthlyUsers.forEach((user) => {
+			userByMonth[user._id - 1] = user.totalUsers;
+		});
+
+		const monthlyBookings = await BookingModel.aggregate([
+			{
+				$group: {
+					_id: { $month: "$createdAt" },
+					totalBookings: { $sum: 1 }
+				}
+			},
+			{
+				$sort: { _id: 1 }
+			}
+		]);
+
+		const bookingByMonth = Array(12).fill(0);
+		monthlyBookings.forEach((booking) => {
+			bookingByMonth[booking._id - 1] = booking.totalBookings;
+		});
 
 		const [
 			totalEvents,
@@ -79,7 +111,9 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 				thisMonthUniqueCustomers: thisMonthUniqueCustomers.length,
 				lastMonthUniqueCustomers: lastMonthUniqueCustomers.length,
 				eventsByMonth,
-				incomeByMonth
+				incomeByMonth,
+				userByMonth,
+				bookingByMonth
 			}
 		});
 	} catch (error) {
