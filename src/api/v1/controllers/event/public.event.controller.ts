@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
 import EventModel from "../../../../models/event.model";
 import BookingModel from "../../../../models/booking.model";
-import { MESSAGE } from "../../../../constants/message";
-import mongoose from "mongoose";
 
 export const getEventByIdForUsers = async (req: Request, res: Response) => {
 	try {
-		const { eventId } = req.query;
+		const { eventId, userId } = req.query;
 
 		// Fetch the event along with tickets
 		const event = await EventModel.findById(eventId)
@@ -20,8 +18,8 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 		// Fetch bookings for this event
 		const bookings: any = await BookingModel.find({ eventId }).lean();
 
-		// Determine booking status
-		const booking_status = bookings.length > 0;
+		// Check if the user has already booked a ticket
+		const userBooking = bookings.some((booking: { userId: string }) => booking.userId.toString() === userId);
 
 		// Calculate ticket availability
 		const ticket_availability =
@@ -48,8 +46,9 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 			message: "Data fetched successfully",
 			result: {
 				...event,
-				booking_status,
-				ticket_availability
+				booking_status: bookings.length > 0,
+				ticket_availability,
+				booked: userBooking // Flag to indicate if the user has booked any ticket
 			}
 		});
 	} catch (error) {
