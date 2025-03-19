@@ -8,12 +8,12 @@ import {
 	updateEventBanner
 } from "../../controllers/event/event.controller";
 import { upload } from "../../../../middleware/multer.middleware";
-import { getEventByIdFOrUsers } from "../../controllers/event/public.event.controller";
 import {
 	getBookingPerformance,
 	getBookingStatistics,
 	getBookingsByEvent
 } from "../../controllers/event/organizer.event.controller";
+import { getEventByIdForUsers } from "../../controllers/event/public.event.controller";
 
 const router = Router();
 
@@ -37,6 +37,6 @@ router.get("/delete-event", deleteEvent);
 
 // PUBLIC ROUTES
 
-router.get("/view-event-for-users", getEventByIdFOrUsers);
+router.get("/view-event-for-users", getEventByIdForUsers);
 
 module.exports = router;
