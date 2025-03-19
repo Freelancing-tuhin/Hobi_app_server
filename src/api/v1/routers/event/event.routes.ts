@@ -8,7 +8,7 @@ import {
 	updateEventBanner
 } from "../../controllers/event/event.controller";
 import { upload } from "../../../../middleware/multer.middleware";
-import { getEventById } from "../../controllers/event/public.event.controller";
+import { getEventByIdFOrUsers } from "../../controllers/event/public.event.controller";
 import {
 	getBookingPerformance,
 	getBookingStatistics,
@@ -27,8 +27,6 @@ router.get("/get-events", getFilteredEvents);
 
 router.get("/get-upcoming-events", getUpcomingEvents);
 
-router.get("/view-event", getEventById);
-
 router.get("/view-event-stats", getBookingStatistics);
 
 router.get("/view-event-users", getBookingsByEvent);
@@ -36,5 +34,9 @@ router.get("/view-event-users", getBookingsByEvent);
 router.get("/view-event-performance", getBookingPerformance);
 
 router.get("/delete-event", deleteEvent);
+
+// PUBLIC ROUTES
+
+router.get("/view-event-for-users", getEventByIdFOrUsers);
 
 module.exports = router;

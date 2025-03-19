@@ -6,11 +6,11 @@ import Razorpay from "razorpay";
 
 export const createBooking = async (req: Request, res: Response) => {
 	try {
-		const { userId, eventId, ticketsCount, price, receipt } = req.body;
+		const { userId, eventId, ticketId, ticketsCount, receipt } = req.body;
 
-		if (!eventId || !userId) {
+		if (!eventId || !userId || !ticketId) {
 			return res.status(400).json({
-				message: MESSAGE.post.custom("Event ID and User ID are required")
+				message: MESSAGE.post.custom("Event ID, User ID, and Ticket ID are required")
 			});
 		}
 
@@ -21,31 +21,47 @@ export const createBooking = async (req: Request, res: Response) => {
 			});
 		}
 
-		const existingBooking = await BookingModel.findOne({ userId, eventId });
-		if (existingBooking) {
+		const ticket = event.tickets.find((t: { _id: { toString: () => any } }) => t._id.toString() === ticketId);
+		if (!ticket) {
 			return res.status(400).json({
-				message: MESSAGE.post.custom("You have already booked this event")
+				message: MESSAGE.post.custom("Invalid Ticket ID")
 			});
 		}
 
-		const payload = {
-			userId,
-			eventId,
-			amountPaid: 0,
-			ticketsCount: ticketsCount || 1,
-			transactionId: null,
-			paymentStatus: "Pending"
-		};
+		if (ticket.quantity < ticketsCount) {
+			return res.status(400).json({
+				message: MESSAGE.post.custom("Ticket sold out or not enough tickets available")
+			});
+		}
 
+		const existingBooking = await BookingModel.findOne({ userId, eventId, ticketId });
+		if (existingBooking) {
+			return res.status(400).json({
+				message: MESSAGE.post.custom("You have already booked this ticket for this event")
+			});
+		}
+
+		const amount = ticket.ticketPrice * ticketsCount;
 		const instance = new Razorpay({ key_id: "rzp_test_WOvg0OAJCnGejI", key_secret: "ZpwuC7sSd9rer6BJLvY3HId9" });
-
 		const response = await instance.orders.create({
-			amount: price * 100,
+			amount: amount * 100,
 			currency: "INR",
 			receipt: receipt
 		});
 
-		const newBooking = await new BookingModel(payload).save();
+		const newBooking = await new BookingModel({
+			userId,
+			eventId,
+			ticketId,
+			amountPaid: 0,
+			ticketsCount,
+			transactionId: null,
+			paymentStatus: "Pending"
+		}).save();
+
+		// Reduce ticket quantity
+		ticket.quantity -= ticketsCount;
+		await event.save();
 
 		return res.status(200).json({
 			message: MESSAGE.post.succ,

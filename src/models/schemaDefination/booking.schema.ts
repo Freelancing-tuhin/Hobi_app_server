@@ -7,26 +7,25 @@ const bookingSchema: Schema<IBooking> = new Schema<IBooking>(
 	{
 		userId: {
 			type: Schema.Types.ObjectId,
-			ref: "users", // Reference to the Users collection
+			ref: "users",
 			required: true
 		},
-
 		eventId: {
 			type: Schema.Types.ObjectId,
-			ref: "events", // Reference to the Events collection
+			ref: "events",
 			required: true
 		},
-
+		ticketId: {
+			type: Schema.Types.ObjectId,
+			required: true
+		},
 		amountPaid: SCHEMA_DEFINITION_PROPERTY.requiredNumber,
-
 		paymentStatus: {
 			type: String,
 			enum: ["Pending", "Completed", "Failed"],
 			default: "Pending"
 		},
-
 		ticketsCount: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
-
 		transactionId: SCHEMA_DEFINITION_PROPERTY.optionalNullString
 	},
 	GENERAL_SCHEMA_OPTIONS

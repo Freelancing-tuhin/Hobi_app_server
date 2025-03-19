@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 export interface IBooking {
 	userId: Types.ObjectId;
 	eventId: Types.ObjectId;
+	ticketId: Types.ObjectId;
 	amountPaid: number;
 	paymentStatus?: "Pending" | "Completed" | "Failed"; // Optional with default value
 	ticketsCount?: number; // Optional, in case of multiple ticket bookings

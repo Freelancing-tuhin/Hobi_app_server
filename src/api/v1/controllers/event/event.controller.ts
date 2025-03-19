@@ -35,7 +35,8 @@ export const createEvent = async (req: Request, res: Response) => {
 				if (Array.isArray(parsedTickets)) {
 					tickets = parsedTickets.map((ticket) => ({
 						ticketName: ticket.ticketName || null,
-						ticketPrice: ticket.ticketPrice || 0
+						ticketPrice: ticket.ticketPrice || 0,
+						quantity: ticket.quantity || 0
 					}));
 				}
 			} catch (error) {

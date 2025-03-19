@@ -4,7 +4,7 @@ import BookingModel from "../../../../models/booking.model";
 import { MESSAGE } from "../../../../constants/message";
 import mongoose from "mongoose";
 
-export const getEventById = async (req: Request, res: Response) => {
+export const getEventByIdFOrUsers = async (req: Request, res: Response) => {
 	try {
 		const { eventId, userId }: any = req.query;
 
