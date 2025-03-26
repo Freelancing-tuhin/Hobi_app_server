@@ -190,6 +190,54 @@ export const getUserBookings = async (req: Request, res: Response) => {
 	}
 };
 
+export const getOrganizerBookings = async (req: Request, res: Response) => {
+	try {
+		const { organizerId, page = 1, limit = 10 } = req.query;
+		const pageNumber = parseInt(page as string) || 1;
+		const limitNumber = parseInt(limit as string) || 10;
+		const skip = (pageNumber - 1) * limitNumber;
+
+		if (!organizerId) {
+			return res.status(400).json({ message: "Organizer ID is required" });
+		}
+
+		// Find events created by the organizer
+		const events = await EventModel.find({ organizerId }).select("_id");
+		const eventIds = events.map((event) => event._id);
+
+		if (eventIds.length === 0) {
+			return res.status(200).json({ message: "No bookings found", result: [] });
+		}
+
+		// Find bookings for those events with pagination
+		const bookings = await BookingModel.find({ eventId: { $in: eventIds } })
+			.populate("eventId")
+			.populate("userId")
+			.skip(skip)
+			.limit(limitNumber);
+
+		const totalBookings = await BookingModel.countDocuments({ eventId: { $in: eventIds } });
+		const totalPages = Math.ceil(totalBookings / limitNumber);
+
+		return res.status(200).json({
+			message: MESSAGE.get.succ,
+			result: bookings,
+			pagination: {
+				totalBookings,
+				totalPages,
+				currentPage: pageNumber,
+				limit: limitNumber
+			}
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			message: MESSAGE.get.fail,
+			error
+		});
+	}
+};
+
 /**
  * Get all bookings for a specific event
  */
