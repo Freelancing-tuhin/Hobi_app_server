@@ -129,6 +129,41 @@ export const updateBooking = async (req: Request, res: Response) => {
 	}
 };
 
+export const updateBookingStatus = async (req: Request, res: Response) => {
+	try {
+		const { bookingId, booking_status } = req.body;
+
+		// Validate booking_status
+		const validStatuses = ["Pending", "check-in", "in-progress", "Completed", "Canceled"];
+		if (!validStatuses.includes(booking_status)) {
+			return res.status(400).json({
+				message: "Invalid booking status"
+			});
+		}
+
+		const booking = await BookingModel.findById(bookingId);
+		if (!booking) {
+			return res.status(404).json({
+				message: MESSAGE.put.custom("Booking not found")
+			});
+		}
+
+		booking.booking_status = booking_status;
+		const updatedBooking = await booking.save();
+
+		return res.status(200).json({
+			message: MESSAGE.put.succ,
+			result: updatedBooking
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: MESSAGE.put.fail,
+			error
+		});
+	}
+};
+
 /**
  * Get all bookings for a specific user
  */

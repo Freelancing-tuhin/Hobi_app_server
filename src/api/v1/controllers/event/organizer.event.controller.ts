@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import BookingModel from "../../../../models/booking.model";
 import mongoose from "mongoose";
 import moment from "moment";
+import EventModel from "../../../../models/event.model";
 
 export const getBookingStatistics = async (req: Request, res: Response) => {
 	try {
@@ -63,13 +64,15 @@ export const getBookingStatistics = async (req: Request, res: Response) => {
 		];
 
 		const result = await BookingModel.aggregate(aggregationPipeline);
+		const eventDetails = await EventModel.findById(eventId);
 
 		return res.status(200).json({
 			totalBookings: result[0].totalBookings[0]?.count || 0,
 			bookingsThisWeek: result[0].bookingsThisWeek[0]?.count || 0,
 			bookingsToday: result[0].bookingsToday[0]?.count || 0,
 			totalIncome: result[0].totalIncome[0]?.total || 0,
-			todaysIncome: result[0].todaysIncome[0]?.total || 0
+			todaysIncome: result[0].todaysIncome[0]?.total || 0,
+			eventDetails: eventDetails || {}
 		});
 	} catch (error) {
 		console.error(error);
@@ -107,10 +110,11 @@ export const getBookingsByEvent = async (req: Request, res: Response) => {
 					_id: 1,
 					userId: "$userId",
 					eventId: "$eventId",
-					bookingDate: "$createdAt",
 					amountPaid: "$amountPaid",
+					bookingDate: "$createdAt",
+					bookingStatus: "$booking_status",
 					ticketName: "$ticketName",
-					status: "$status",
+					bookingId: "$_id",
 					userDetails: "$userDetails"
 				}
 			}

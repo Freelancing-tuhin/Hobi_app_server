@@ -1,15 +1,15 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
 const credential = {
-	accessKeyId: "AKIAWW2CZET5JKL6RMKC",
-	secretAccessKey: "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",
+	accessKeyId: "AKIAXZ5NGBG43LQTXUZL",
+	secretAccessKey: "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"
 };
 
 export const s3Client = new S3Client({
-	region: "ap-south-1",
-	credentials: credential,
+	region: "eu-north-1",
+	credentials: credential
 });
 
-export const s3Url = "https://bazarpay.s3.ap-south-1.amazonaws.com";
+export const s3Url = "https://hobiapp.s3.eu-north-1.amazonaws.com";
 
-export const bucketName = "bazarpay";
+export const bucketName = "hobiapp";

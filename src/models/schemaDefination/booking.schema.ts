@@ -25,6 +25,11 @@ const bookingSchema: Schema<IBooking> = new Schema<IBooking>(
 			enum: ["Pending", "Completed", "Failed"],
 			default: "Pending"
 		},
+		booking_status: {
+			type: String,
+			enum: ["Pending", "check-in", "in-progress", "Completed", "Canceled"],
+			default: "Pending"
+		},
 		ticketsCount: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
 		transactionId: SCHEMA_DEFINITION_PROPERTY.optionalNullString
 	},

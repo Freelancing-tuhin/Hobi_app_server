@@ -1,11 +1,13 @@
 import { Router } from "express";
-import { createBooking, updateBooking } from "../../controllers/bookings/bookings.controller";
+import { createBooking, updateBooking, updateBookingStatus } from "../../controllers/bookings/bookings.controller";
 
 const router = Router();
 
 router.post("/create-booking", createBooking);
 
 router.patch("/confirm-booking", updateBooking);
+
+router.patch("/update-status-booking", updateBookingStatus);
 
 // router.get("/get-user-bookings", getUserBookings);
 
