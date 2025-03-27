@@ -74,6 +74,31 @@ export const editReview = async (req: Request, res: Response) => {
 	}
 };
 
+export const updateReviewStatusToAdmin = async (req: Request, res: Response) => {
+	try {
+		const { id } = req.query;
+
+		const updatedReview = await ReviewModel.findByIdAndUpdate(id, { review_status: "Admin" }, { new: true });
+
+		if (!updatedReview) {
+			return res.status(404).json({
+				message: MESSAGE.patch.fail
+			});
+		}
+
+		return res.status(200).json({
+			message: MESSAGE.patch.succ,
+			result: updatedReview
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: MESSAGE.patch.fail,
+			error
+		});
+	}
+};
+
 // Get All Reviews
 export const getAllReviews = async (req: Request, res: Response) => {
 	try {

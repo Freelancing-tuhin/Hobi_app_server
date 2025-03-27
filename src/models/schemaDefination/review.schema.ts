@@ -6,6 +6,12 @@ import { IReview } from "../../types/interface/review.interface";
 const reviewSchema: Schema<IReview> = new Schema<IReview>(
 	{
 		comment: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		remarks: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		review_status: {
+			type: String,
+			enum: ["Customer", "Organizer", "Admin"],
+			default: "Organizer"
+		},
 		rating: {
 			type: Number,
 			required: true,

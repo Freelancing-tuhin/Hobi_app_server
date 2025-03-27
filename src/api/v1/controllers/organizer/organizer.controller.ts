@@ -89,3 +89,34 @@ export const updateOrganizerDocuments = async (req: any, res: Response) => {
 		});
 	}
 };
+
+export const updateProfilePic = async (req: Request, res: Response) => {
+	try {
+		const { organizerId } = req.query;
+
+		if (!req.file) {
+			return res.status(400).json({ message: "No file uploaded" });
+		}
+
+		const fileBuffer = req.file.buffer;
+		const fileUrl = await uploadImageToS3Service("profile_pic", fileBuffer);
+
+		console.log("======>file", fileUrl);
+		const updatedOrganizer = await OrganizerModel.findByIdAndUpdate(
+			organizerId,
+			{ $set: { profile_pic: fileUrl || "" } },
+			{ new: true, runValidators: true }
+		);
+
+		return res.status(200).json({
+			message: "Profile picture updated successfully",
+			result: updatedOrganizer
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			message: "Failed to update profile picture",
+			error: error
+		});
+	}
+};

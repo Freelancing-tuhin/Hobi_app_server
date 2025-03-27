@@ -1,5 +1,9 @@
 import express from "express";
-import { updateOrganizerDetails, updateOrganizerDocuments } from "../../controllers/organizer/organizer.controller";
+import {
+	updateOrganizerDetails,
+	updateOrganizerDocuments,
+	updateProfilePic
+} from "../../controllers/organizer/organizer.controller";
 import { upload } from "../../../../middleware/multer.middleware";
 import { getOrganizerStats } from "../../controllers/organizer/dashboard.controller";
 
@@ -20,5 +24,8 @@ router.route("/update_documents").patch(
 	]),
 	updateOrganizerDocuments
 );
+// router.route("/update_profile_pic").patch(upload.fields([{ name: "profile_pic", maxCount: 1 }]), updateProfilePic);
+
+router.route("/update_profile_pic").patch(upload.single("profile_pic"), updateProfilePic);
 
 module.exports = router;
