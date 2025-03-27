@@ -1,5 +1,6 @@
 export interface IOrganizer {
 	full_name: string;
+	profit_percentage: number;
 	age: number;
 	phone: string;
 	email: string;

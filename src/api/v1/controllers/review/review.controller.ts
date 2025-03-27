@@ -117,20 +117,66 @@ export const getAllReviews = async (req: Request, res: Response) => {
 	}
 };
 
+export const deleteReview = async (req: Request, res: Response) => {
+	try {
+		const { id } = req.query;
+
+		if (!id) {
+			return res.status(400).json({
+				message: "Review ID is required"
+			});
+		}
+
+		const deletedReview = await ReviewModel.findByIdAndDelete(id);
+
+		if (!deletedReview) {
+			return res.status(404).json({
+				message: "Review not found"
+			});
+		}
+
+		return res.status(200).json({
+			message: "Review deleted successfully",
+			result: deletedReview
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: "Failed to delete review",
+			error
+		});
+	}
+};
 // Get Reviews by Filter (userId, providerId, or rating)
 export const getReviewsByFilter = async (req: Request, res: Response) => {
 	try {
-		const { userId, eventId, rating } = req.query;
-		const filter: any = {};
+		const { userId, eventId, rating, review_status, page = 1, limit = 10 } = req.query;
 
+		const filter: any = {};
 		if (userId) filter.userId = userId;
 		if (eventId) filter.eventId = eventId;
 		if (rating) filter.rating = rating;
+		if (review_status) filter.review_status = review_status;
 
-		const filteredReviews = await ReviewModel.find(filter).populate("userId eventId");
+		// Convert page and limit to numbers
+		const pageNumber = Math.max(1, Number(page));
+		const limitNumber = Math.max(1, Number(limit));
+
+		// Fetch total count
+		const totalReviews = await ReviewModel.countDocuments(filter);
+
+		// Fetch paginated reviews
+		const filteredReviews = await ReviewModel.find(filter)
+			.populate("userId eventId")
+			.skip((pageNumber - 1) * limitNumber)
+			.limit(limitNumber);
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
+			page: pageNumber,
+			limit: limitNumber,
+			totalReviews,
+			totalPages: Math.ceil(totalReviews / limitNumber),
 			result: filteredReviews
 		});
 	} catch (error) {

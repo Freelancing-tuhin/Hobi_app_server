@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	createReview,
+	deleteReview,
 	editReview,
 	getAllReviews,
 	getReviewsByFilter,
@@ -11,9 +12,15 @@ import { jwtAuthMiddleware } from "../../../../middleware/auth/jwtAuth.middlewar
 const router = express.Router();
 
 router.route("/create").post(createReview);
+
 router.route("/edit/:id").put(editReview);
+
 router.route("/report_review").patch(updateReviewStatusToAdmin);
+
 router.route("/getAll").get(jwtAuthMiddleware, getAllReviews);
+
 router.route("/filter").get(getReviewsByFilter);
+
+router.route("/delete").delete(deleteReview);
 
 module.exports = router;

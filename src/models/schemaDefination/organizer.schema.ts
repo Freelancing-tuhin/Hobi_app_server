@@ -6,6 +6,10 @@ import { IOrganizer } from "../../types/interface/organizer.interface";
 const organizerSchema: Schema<IOrganizer> = new Schema<IOrganizer>(
 	{
 		full_name: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		profit_percentage: {
+			type: Number,
+			default: 10
+		},
 		age: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
 		phone: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		email: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
