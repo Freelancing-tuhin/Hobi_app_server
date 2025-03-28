@@ -12,15 +12,8 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 		const endOfLastMonth = moment().subtract(1, "month").endOf("month").toDate();
 
 		const monthlyEvents = await EventModel.aggregate([
-			{
-				$group: {
-					_id: { $month: "$createdAt" },
-					total: { $sum: 1 }
-				}
-			},
-			{
-				$sort: { _id: 1 }
-			}
+			{ $group: { _id: { $month: "$createdAt" }, total: { $sum: 1 } } },
+			{ $sort: { _id: 1 } }
 		]);
 
 		const eventsByMonth = Array(12).fill(0);
@@ -29,15 +22,8 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 		});
 
 		const monthlyIncome = await BookingModel.aggregate([
-			{
-				$group: {
-					_id: { $month: "$createdAt" },
-					totalIncome: { $sum: "$amountPaid" }
-				}
-			},
-			{
-				$sort: { _id: 1 }
-			}
+			{ $group: { _id: { $month: "$createdAt" }, totalIncome: { $sum: "$amountPaid" } } },
+			{ $sort: { _id: 1 } }
 		]);
 
 		const incomeByMonth = Array(12).fill(0);
@@ -46,15 +32,8 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 		});
 
 		const monthlyUsers = await UserModel.aggregate([
-			{
-				$group: {
-					_id: { $month: "$createdAt" },
-					totalUsers: { $sum: 1 }
-				}
-			},
-			{
-				$sort: { _id: 1 }
-			}
+			{ $group: { _id: { $month: "$createdAt" }, totalUsers: { $sum: 1 } } },
+			{ $sort: { _id: 1 } }
 		]);
 
 		const userByMonth = Array(12).fill(0);
@@ -63,15 +42,8 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 		});
 
 		const monthlyBookings = await BookingModel.aggregate([
-			{
-				$group: {
-					_id: { $month: "$createdAt" },
-					totalBookings: { $sum: 1 }
-				}
-			},
-			{
-				$sort: { _id: 1 }
-			}
+			{ $group: { _id: { $month: "$createdAt" }, totalBookings: { $sum: 1 } } },
+			{ $sort: { _id: 1 } }
 		]);
 
 		const bookingByMonth = Array(12).fill(0);
@@ -87,7 +59,8 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 			completedBookings,
 			totalUniqueCustomers,
 			thisMonthUniqueCustomers,
-			lastMonthUniqueCustomers
+			lastMonthUniqueCustomers,
+			repeatCustomers
 		] = await Promise.all([
 			EventModel.countDocuments(),
 			BookingModel.aggregate([{ $group: { _id: null, total: { $sum: "$amountPaid" } } }]),
@@ -96,8 +69,17 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 			BookingModel.countDocuments({ paymentStatus: "Completed" }),
 			BookingModel.distinct("userId"),
 			BookingModel.distinct("userId", { createdAt: { $gte: startOfThisMonth } }),
-			BookingModel.distinct("userId", { createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } })
+			BookingModel.distinct("userId", { createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+			BookingModel.aggregate([
+				{ $group: { _id: "$userId", count: { $sum: 1 } } },
+				{ $match: { count: { $gt: 1 } } },
+				{ $count: "repeatCustomers" }
+			])
 		]);
+
+		const repeatCustomerCount = repeatCustomers[0]?.repeatCustomers || 0;
+		const repeatCustomerPercentage =
+			totalUniqueCustomers.length > 0 ? (repeatCustomerCount / totalUniqueCustomers.length) * 100 : 0;
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
@@ -110,6 +92,7 @@ export const dashBoardStats = async (req: Request, res: Response) => {
 				totalUniqueCustomers: totalUniqueCustomers.length,
 				thisMonthUniqueCustomers: thisMonthUniqueCustomers.length,
 				lastMonthUniqueCustomers: lastMonthUniqueCustomers.length,
+				repeatCustomerPercentage,
 				eventsByMonth,
 				incomeByMonth,
 				userByMonth,

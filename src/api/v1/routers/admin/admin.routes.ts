@@ -11,16 +11,24 @@ import { hashPassword } from "../../../../middleware/auth/hashPassword.middlewar
 import { signUpOrganizer } from "../../controllers/auth/auth.controller";
 import { eventStats } from "../../controllers/admin/admin.event.controller";
 import { dashBoardStats } from "../../controllers/admin/adminDashboard.controller";
+import { getUsersWithBookings } from "../../controllers/admin/admin.users.controller";
 
 const router = express.Router();
 
 router.route("/getAllOrganizers").get(getAllOrganizers);
+
+router.route("/getAllUsers").get(getUsersWithBookings);
+
 router.route("/getOrganizerById").get(getOrganizerById);
+
 router.route("/editOrganizers").patch(editOrganizers);
+
 router.route("/deleteProvider").delete(validateAdminRouteExistenceMiddleware, deleteProvider);
+
 router.route("/createProvider").post(checkUserExistenceMiddleware, hashPassword, signUpOrganizer);
 
 router.route("/view-event-admin").get(eventStats);
+
 router.route("/dashboard-stats").get(dashBoardStats);
 
 module.exports = router;
