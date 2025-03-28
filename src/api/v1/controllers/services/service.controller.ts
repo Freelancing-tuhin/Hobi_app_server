@@ -114,20 +114,42 @@ export const getAllServices = async (req: Request, res: Response) => {
 			{ $group: { _id: "$service_category", count: { $sum: 1 } } }
 		]);
 
-		// Map organizer counts to service results
-		const servicesWithOrganizerCount = services.map((service) => {
+		// Get monthly statistics for service usage
+		const serviceStats = await OrganizerModel.aggregate([
+			{
+				$group: {
+					_id: {
+						service_category: "$service_category",
+						month: { $month: "$createdAt" }
+					},
+					count: { $sum: 1 }
+				}
+			}
+		]);
+
+		// Map organizer counts and service stats to service results
+		const servicesWithStats = services.map((service) => {
 			const matchingCount = organizerCounts.find(
 				(countData) => countData._id?.toString() === service._id.toString()
 			);
+
+			const monthlyStats = Array(12).fill(0);
+			serviceStats.forEach((stat) => {
+				if (stat._id.service_category?.toString() === service._id.toString()) {
+					monthlyStats[stat._id.month - 1] = stat.count;
+				}
+			});
+
 			return {
 				...service.toObject(),
-				organizerCount: matchingCount ? matchingCount.count : 0
+				organizerCount: matchingCount ? matchingCount.count : 0,
+				serviceStats: monthlyStats
 			};
 		});
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
-			result: servicesWithOrganizerCount
+			result: servicesWithStats
 		});
 	} catch (error) {
 		console.error(error);
