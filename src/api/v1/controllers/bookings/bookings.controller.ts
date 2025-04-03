@@ -154,35 +154,55 @@ export const updateBooking = async (req: Request, res: Response) => {
 	}
 };
 
-// export const updateBooking = async (req: Request, res: Response) => {
-// 	try {
-// 		const { bookingId, transactionId, paymentStatus, amountPaid } = req.body;
+export const refundBooking = async (req: Request, res: Response) => {
+	try {
+		const { bookingId } = req.body;
 
-// 		const booking = await BookingModel.findById(bookingId);
-// 		if (!booking) {
-// 			return res.status(404).json({
-// 				message: MESSAGE.put.custom("Booking not found")
-// 			});
-// 		}
+		// Find the booking
+		const booking: any = await BookingModel.findById(bookingId);
+		if (!booking) {
+			return res.status(404).json({
+				message: MESSAGE.put.custom("Booking not found")
+			});
+		}
 
-// 		booking.amountPaid = amountPaid;
-// 		booking.transactionId = transactionId;
-// 		booking.paymentStatus = paymentStatus;
+		if (booking.paymentStatus === "Refunded" || !booking.transactionId) {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Refund already completed.")
+			});
+		}
+		if (booking.paymentStatus !== "Completed" || !booking.transactionId) {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Refund not possible. Payment is not completed.")
+			});
+		}
 
-// 		const updatedBooking = await booking.save();
+		// Process refund via Razorpay
+		const refundResponse = await razorpayInstance.payments.refund(booking.transactionId, {
+			amount: booking.amountPaid * 100, // Convert to paisa (if needed)
+			speed: "normal" // Use "instant" for an instant refund
+		});
 
-// 		return res.status(200).json({
-// 			message: MESSAGE.put.succ,
-// 			result: updatedBooking
-// 		});
-// 	} catch (error) {
-// 		console.error(error);
-// 		return res.status(400).json({
-// 			message: MESSAGE.put.fail,
-// 			error
-// 		});
-// 	}
-// };
+		// Update booking status
+		booking.paymentStatus = "Refunded";
+		booking.booking_status = "Cancelled";
+		booking.refundId = refundResponse?.id;
+
+		const updatedBooking = await booking.save();
+
+		return res.status(200).json({
+			message: MESSAGE.put.succ,
+			result: updatedBooking,
+			refund: refundResponse
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: MESSAGE.put.fail,
+			error
+		});
+	}
+};
 
 export const updateBookingStatus = async (req: Request, res: Response) => {
 	try {

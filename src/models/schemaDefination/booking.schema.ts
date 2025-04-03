@@ -22,16 +22,17 @@ const bookingSchema: Schema<IBooking> = new Schema<IBooking>(
 		amountPaid: SCHEMA_DEFINITION_PROPERTY.requiredNumber,
 		paymentStatus: {
 			type: String,
-			enum: ["Pending", "Completed", "Failed"],
+			enum: ["Pending", "Completed", "Failed", "Refunded"],
 			default: "Pending"
 		},
 		booking_status: {
 			type: String,
-			enum: ["Pending", "check-in", "in-progress", "Completed", "Canceled"],
+			enum: ["Pending", "check-in", "in-progress", "Completed", "Cancelled"],
 			default: "Pending"
 		},
 		ticketsCount: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
 		transactionId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		refundId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		orderId: SCHEMA_DEFINITION_PROPERTY.optionalNullString
 	},
 	GENERAL_SCHEMA_OPTIONS

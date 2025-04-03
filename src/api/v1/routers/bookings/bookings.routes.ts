@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
 	createBooking,
 	getOrganizerBookings,
+	refundBooking,
 	updateBooking,
 	updateBookingStatus
 } from "../../controllers/bookings/bookings.controller";
@@ -11,6 +12,8 @@ const router = Router();
 router.post("/create-booking", createBooking);
 
 router.patch("/confirm-booking", updateBooking);
+
+router.patch("/refund-booking-bookings", refundBooking);
 
 router.patch("/update-status-booking", updateBookingStatus);
 
