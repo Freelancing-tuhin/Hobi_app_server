@@ -5,6 +5,11 @@ import EventModel from "../../../../models/event.model";
 import { MESSAGE } from "../../../../constants/message";
 import Razorpay from "razorpay";
 
+const razorpayInstance = new Razorpay({
+	key_id: "rzp_test_WOvg0OAJCnGejI",
+	key_secret: "ZpwuC7sSd9rer6BJLvY3HId9"
+});
+
 export const createBooking = async (req: Request, res: Response) => {
 	const session = await mongoose.startSession();
 	session.startTransaction();
@@ -62,8 +67,8 @@ export const createBooking = async (req: Request, res: Response) => {
 
 		// Process payment
 		const amount = ticket.ticketPrice * ticketsCount;
-		const instance = new Razorpay({ key_id: "rzp_test_WOvg0OAJCnGejI", key_secret: "ZpwuC7sSd9rer6BJLvY3HId9" });
-		const response = await instance.orders.create({
+		// const instance = new Razorpay({ key_id: "rzp_test_WOvg0OAJCnGejI", key_secret: "ZpwuC7sSd9rer6BJLvY3HId9" });
+		const response = await razorpayInstance.orders.create({
 			amount: amount * 100,
 			currency: "INR",
 			receipt: receipt
@@ -99,11 +104,6 @@ export const createBooking = async (req: Request, res: Response) => {
 		});
 	}
 };
-
-const razorpayInstance = new Razorpay({
-	key_id: "rzp_test_WOvg0OAJCnGejI",
-	key_secret: "ZpwuC7sSd9rer6BJLvY3HId9"
-});
 
 export const updateBooking = async (req: Request, res: Response) => {
 	try {
