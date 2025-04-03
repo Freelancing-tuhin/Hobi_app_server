@@ -77,7 +77,8 @@ export const createBooking = async (req: Request, res: Response) => {
 			amountPaid: 0,
 			ticketsCount,
 			transactionId: null,
-			paymentStatus: "Pending"
+			paymentStatus: "Pending",
+			orderId: response.id
 		}).save({ session });
 
 		await session.commitTransaction();
@@ -99,20 +100,44 @@ export const createBooking = async (req: Request, res: Response) => {
 	}
 };
 
+const razorpayInstance = new Razorpay({
+	key_id: "rzp_test_WOvg0OAJCnGejI",
+	key_secret: "ZpwuC7sSd9rer6BJLvY3HId9"
+});
+
 export const updateBooking = async (req: Request, res: Response) => {
 	try {
-		const { bookingId, transactionId, paymentStatus, amountPaid } = req.body;
+		const { bookingId, transactionId } = req.body;
 
-		const booking = await BookingModel.findById(bookingId);
+		// Find booking
+		const booking: any = await BookingModel.findById(bookingId);
 		if (!booking) {
 			return res.status(404).json({
 				message: MESSAGE.put.custom("Booking not found")
 			});
 		}
 
-		booking.amountPaid = amountPaid;
+		// Verify Payment from Razorpay
+		const payment: any = await razorpayInstance.payments.fetch(transactionId);
+		if (!payment) {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Invalid transaction ID or payment not found")
+			});
+		}
+
+		// Check if the payment was successful
+		if (payment.status !== "captured") {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Payment verification failed. Payment not captured."),
+				paymentStatus: payment.status
+			});
+		}
+
+		// Update booking details
+		booking.amountPaid = payment.amount / 100; // Razorpay returns amount in paise
 		booking.transactionId = transactionId;
-		booking.paymentStatus = paymentStatus;
+		booking.paymentStatus = "Completed";
+		booking.booking_status = "Pending"; // Assuming you want to update this
 
 		const updatedBooking = await booking.save();
 
@@ -128,6 +153,36 @@ export const updateBooking = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+// export const updateBooking = async (req: Request, res: Response) => {
+// 	try {
+// 		const { bookingId, transactionId, paymentStatus, amountPaid } = req.body;
+
+// 		const booking = await BookingModel.findById(bookingId);
+// 		if (!booking) {
+// 			return res.status(404).json({
+// 				message: MESSAGE.put.custom("Booking not found")
+// 			});
+// 		}
+
+// 		booking.amountPaid = amountPaid;
+// 		booking.transactionId = transactionId;
+// 		booking.paymentStatus = paymentStatus;
+
+// 		const updatedBooking = await booking.save();
+
+// 		return res.status(200).json({
+// 			message: MESSAGE.put.succ,
+// 			result: updatedBooking
+// 		});
+// 	} catch (error) {
+// 		console.error(error);
+// 		return res.status(400).json({
+// 			message: MESSAGE.put.fail,
+// 			error
+// 		});
+// 	}
+// };
 
 export const updateBookingStatus = async (req: Request, res: Response) => {
 	try {

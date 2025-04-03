@@ -31,7 +31,8 @@ const bookingSchema: Schema<IBooking> = new Schema<IBooking>(
 			default: "Pending"
 		},
 		ticketsCount: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
-		transactionId: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+		transactionId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		orderId: SCHEMA_DEFINITION_PROPERTY.optionalNullString
 	},
 	GENERAL_SCHEMA_OPTIONS
 );
