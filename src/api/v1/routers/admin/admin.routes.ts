@@ -12,6 +12,7 @@ import { signUpOrganizer } from "../../controllers/auth/auth.controller";
 import { eventStats } from "../../controllers/admin/admin.event.controller";
 import { dashBoardStats } from "../../controllers/admin/adminDashboard.controller";
 import { getUsersWithBookings } from "../../controllers/admin/admin.users.controller";
+import { getAllCategoriesWithStats } from "../../controllers/admin/admin.category.controller";
 
 const router = express.Router();
 
@@ -30,5 +31,7 @@ router.route("/createProvider").post(checkUserExistenceMiddleware, hashPassword,
 router.route("/view-event-admin").get(eventStats);
 
 router.route("/dashboard-stats").get(dashBoardStats);
+
+router.route("/dashboard-category").get(getAllCategoriesWithStats);
 
 module.exports = router;

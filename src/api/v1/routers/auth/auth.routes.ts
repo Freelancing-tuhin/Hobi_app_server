@@ -18,17 +18,19 @@ import {
 	validateProviderExistenceMiddleware,
 	validateUserExistenceMiddleware
 } from "../../../../middleware/validation/validateUserExistance.middleware";
-import { verifyPasswordMiddleware } from "../../../../middleware/auth/verifyPassword.middleware";
+import { getOtp } from "../../controllers/auth/otp.controller";
 
 const router = express.Router();
 
-router.route("/user-signup").post(checkUserExistenceMiddleware, hashPassword, signUpUser);
-router.route("/user-login").post(validateUserExistenceMiddleware, verifyPasswordMiddleware, loginUser);
+router.route("/get-otp").post(getOtp);
 
-router.route("/organizer-signup").post(checkProviderExistenceMiddleware, hashPassword, signUpOrganizer);
-router.route("/organizer-login").post(validateProviderExistenceMiddleware, verifyPasswordMiddleware, loginOrganizer);
+router.route("/user-signup").post(checkUserExistenceMiddleware, signUpUser);
+router.route("/user-login").post(validateUserExistenceMiddleware, loginUser);
 
-router.route("/admin-signup").post(checkAdminExistenceMiddleware, hashPassword, signUpAdmin);
-router.route("/admin-login").post(validateAdminExistenceMiddleware, verifyPasswordMiddleware, loginAdmin);
+router.route("/organizer-signup").post(checkProviderExistenceMiddleware, signUpOrganizer);
+router.route("/organizer-login").post(validateProviderExistenceMiddleware, loginOrganizer);
+
+router.route("/admin-signup").post(checkAdminExistenceMiddleware, signUpAdmin);
+router.route("/admin-login").post(validateAdminExistenceMiddleware, loginAdmin);
 
 module.exports = router;

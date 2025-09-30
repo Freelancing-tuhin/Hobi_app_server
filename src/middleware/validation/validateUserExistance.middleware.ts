@@ -4,19 +4,18 @@ import ProviderModel from "../../models/organizer.model";
 import AdminModel from "../../models/admin.model";
 
 export const validateUserExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
-	const { email } = req.body;
+	const { phone } = req.body;
 
 	try {
-		const userInstance = await UserModel.findOne({ email });
+		const userInstance = await UserModel.findOne({ phone });
 		if (!userInstance) {
 			return res.status(404).json({
 				message: "User does not exist"
 			});
 		}
 
-		// Attach user instance to the request for further processing
 		req.user = userInstance;
-		next(); // Proceed to the next middleware/handler
+		next();
 	} catch (err) {
 		console.error("Error checking user existence:", err);
 		return res.status(500).json({
@@ -27,24 +26,19 @@ export const validateUserExistenceMiddleware = async (req: any, res: Response, n
 };
 
 export const validateProviderExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
-	const { email } = req.body;
+	const { phone } = req.body;
 
 	try {
-		const userInstance = await ProviderModel.findOne({ email });
+		const userInstance = await ProviderModel.findOne({ phone });
 		if (!userInstance) {
 			return res.status(404).json({
 				message: "User does not exist"
 			});
 		}
-		// if (userInstance?.is_verified === false) {
-		// 	return res.status(404).json({
-		// 		message: "User is not verified"
-		// 	});
-		// }
 
 		// Attach user instance to the request for further processing
 		req.user = userInstance;
-		next(); // Proceed to the next middleware/handler
+		next();
 	} catch (err) {
 		console.error("Error checking user existence:", err);
 		return res.status(500).json({
@@ -55,19 +49,18 @@ export const validateProviderExistenceMiddleware = async (req: any, res: Respons
 };
 
 export const validateAdminExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
-	const { email } = req.body;
+	const { phone } = req.body;
 
 	try {
-		const userInstance = await AdminModel.findOne({ email });
+		const userInstance = await AdminModel.findOne({ phone });
 		if (!userInstance) {
 			return res.status(404).json({
 				message: "User does not exist"
 			});
 		}
 
-		// Attach user instance to the request for further processing
 		req.user = userInstance;
-		next(); // Proceed to the next middleware/handler
+		next();
 	} catch (err) {
 		console.error("Error checking user existence:", err);
 		return res.status(500).json({
@@ -78,19 +71,18 @@ export const validateAdminExistenceMiddleware = async (req: any, res: Response, 
 };
 
 export const validateAdminRouteExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
-	const { email } = req.query;
+	const { phone } = req.query;
 
 	try {
-		const userInstance = await AdminModel.findOne({ email });
+		const userInstance = await AdminModel.findOne({ phone });
 		if (!userInstance) {
 			return res.status(404).json({
 				message: "User does not exist"
 			});
 		}
 
-		// Attach user instance to the request for further processing
 		req.user = userInstance;
-		next(); // Proceed to the next middleware/handler
+		next();
 	} catch (err) {
 		console.error("Error checking user existence:", err);
 		return res.status(500).json({
