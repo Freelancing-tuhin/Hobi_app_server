@@ -25,17 +25,11 @@ export const getOtp = async (req: Request, res: Response) => {
 		}
 
 		const response = await generateOtp(phone);
-		console.log("===>OTP Generation Response", response);
+		console.log("===>OTP Generation Response", response?.otp);
 
 		return res.status(200).json({
 			message: MESSAGE.post.succ,
-			result: encryptData(
-				JSON.stringify({
-					otp: response.otp,
-					request_id: response.request_id,
-					message: response.message
-				})
-			)
+			result: encryptData(response.otp)
 		});
 	} catch (error: any) {
 		console.error("Error Generating OTP:", error);
