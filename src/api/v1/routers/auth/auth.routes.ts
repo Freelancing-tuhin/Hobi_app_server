@@ -18,11 +18,14 @@ import {
 	validateProviderExistenceMiddleware,
 	validateUserExistenceMiddleware
 } from "../../../../middleware/validation/validateUserExistance.middleware";
-import { getOtp } from "../../controllers/auth/otp.controller";
+import { getOtp, sendOtp, verifyOtp } from "../../controllers/auth/otp.controller";
 
 const router = express.Router();
 
-router.route("/get-otp").post(getOtp);
+// OTP routes with MSG91 integration
+router.route("/get-otp").post(getOtp); // Original method with custom OTP generation
+router.route("/send-otp").post(sendOtp); // New method using MSG91's built-in OTP service
+router.route("/verify-otp").post(verifyOtp); // New method to verify OTP
 
 router.route("/user-signup").post(checkUserExistenceMiddleware, signUpUser);
 router.route("/user-login").post(validateUserExistenceMiddleware, loginUser);
