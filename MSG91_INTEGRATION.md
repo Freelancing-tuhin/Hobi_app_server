@@ -32,7 +32,7 @@ The configuration is loaded in `src/config/config.ts`:
 export const MSG91_CONFIG = {
 	AUTH_KEY: process.env.MSG91_AUTH_KEY || "default_key",
 	TEMPLATE_ID: process.env.MSG91_TEMPLATE_ID || "default_template",
-	SENDER_ID: process.env.MSG91_SENDER_ID || "MSGIND",
+	SENDER_ID: process.env.MSG91_SENDER_ID || "HOBIPL",
 	BASE_URL: "https://control.msg91.com/api/v5"
 };
 ```
