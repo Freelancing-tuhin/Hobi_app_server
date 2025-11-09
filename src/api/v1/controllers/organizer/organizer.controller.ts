@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import OrganizerModel from "../../../../models/organizer.model";
 import { MESSAGE } from "../../../../constants/message";
 import { uploadImageToS3Service } from "../../../../services/uploadImageService";
+import { uploadPdfToS3Service } from "../../../../services/uploadPdfToS3Service";
 
 export const getOrganizerDetails = async (req: any, res: Response) => {
 	try {
@@ -89,13 +90,47 @@ export const updateOrganizerDocuments = async (req: any, res: Response) => {
 
 		for (const field of fileFields) {
 			if (req.files[field]) {
-				try {
-					const fileBuffer = req.files[field][0].buffer;
-					const fileUrl = await uploadImageToS3Service(field, fileBuffer);
-					organizerData[field] = fileUrl || "";
-				} catch (error) {
-					return res.status(400).json({ message: `Failed to upload ${field}` });
+				const files = req.files[field];
+				const uploadedUrls: string[] = [];
+
+				for (const file of files) {
+					try {
+						const fileBuffer: Buffer = file.buffer;
+						const mimeType: string = file.mimetype || "";
+
+						let fileUrl: string | null = null;
+
+						// If file is PDF, use PDF uploader; if image, use image uploader; otherwise try to infer from originalname
+						if (mimeType === "application/pdf" || (file.originalname && file.originalname.toLowerCase().endsWith(".pdf"))) {
+							{
+								const uploaded = await uploadPdfToS3Service(field, fileBuffer);
+								fileUrl = uploaded ?? null;
+							}
+						} else if (mimeType.startsWith("image/")) {
+							{
+								const uploaded = await uploadImageToS3Service(field, fileBuffer);
+								fileUrl = uploaded ?? null;
+							}
+						} else {
+							// fallback: if filename ends with .pdf treat as pdf, else treat as image
+							if (file.originalname && file.originalname.toLowerCase().endsWith(".pdf")) {
+								const uploaded = await uploadPdfToS3Service(field, fileBuffer);
+								fileUrl = uploaded ?? null;
+							} else {
+								const uploaded = await uploadImageToS3Service(field, fileBuffer);
+								fileUrl = uploaded ?? null;
+							}
+						}
+
+						if (fileUrl) uploadedUrls.push(fileUrl);
+					} catch (error) {
+						console.error(`Failed to upload file for field ${field}:`, error);
+						return res.status(400).json({ message: `Failed to upload ${field}` });
+					}
 				}
+
+				// If only one file uploaded for this field, store as string to preserve existing schema; otherwise store array
+				organizerData[field] = uploadedUrls.length === 1 ? uploadedUrls[0] : uploadedUrls;
 			}
 		}
 
