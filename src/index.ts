@@ -10,11 +10,13 @@ const app = express();
 const port = process.env.PORT || 8989;
 
 const options: cors.CorsOptions = {
-	allowedHeaders: ["sessionId", "Content-Type"],
-	exposedHeaders: ["sessionId"],
+	// Allow common headers including Authorization so protected routes pass preflight
+	allowedHeaders: ["sessionId", "Content-Type", "Authorization", "authorization", "X-Requested-With", "Accept", "Origin"],
+	exposedHeaders: ["sessionId", "Authorization"],
 	origin: "*",
-	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-	preflightContinue: false
+	methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+	preflightContinue: false,
+	optionsSuccessStatus: 200
 };
 
 app.use(cors(options));

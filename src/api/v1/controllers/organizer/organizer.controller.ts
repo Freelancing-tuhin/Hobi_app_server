@@ -3,6 +3,39 @@ import OrganizerModel from "../../../../models/organizer.model";
 import { MESSAGE } from "../../../../constants/message";
 import { uploadImageToS3Service } from "../../../../services/uploadImageService";
 
+export const getOrganizerDetails = async (req: any, res: Response) => {
+	try {
+		// Get organizerId from JWT token (attached by jwtAuthMiddleware)
+		const organizerId = req.user?.id;
+
+		if (!organizerId) {
+			return res.status(401).json({
+				message: "Unauthorized: Invalid token"
+			});
+		}
+
+		// Find organizer by ID
+		const organizer = await OrganizerModel.findById(organizerId).select("-password");
+
+		if (!organizer) {
+			return res.status(404).json({
+				message: "Organizer not found"
+			});
+		}
+
+		return res.status(200).json({
+			message: "Organizer details retrieved successfully",
+			result: organizer
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			message: "Failed to retrieve organizer details",
+			error: error
+		});
+	}
+};
+
 export const updateOrganizerDetails = async (req: Request, res: Response) => {
 	try {
 		const { organizerId } = req.query;

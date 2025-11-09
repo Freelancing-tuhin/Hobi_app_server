@@ -1,13 +1,17 @@
 import express from "express";
 import {
+	getOrganizerDetails,
 	updateOrganizerDetails,
 	updateOrganizerDocuments,
 	updateProfilePic
 } from "../../controllers/organizer/organizer.controller";
 import { upload } from "../../../../middleware/multer.middleware";
 import { getOrganizerStats } from "../../controllers/organizer/dashboard.controller";
+import { jwtAuthMiddleware } from "../../../../middleware/auth/jwtAuth.middleware";
 
 const router = express.Router();
+
+router.route("/details").get(jwtAuthMiddleware, getOrganizerDetails);
 
 router.route("/update_profile").patch(updateOrganizerDetails);
 
