@@ -1,0 +1,1576 @@
+{
+	"info": {
+		"_postman_id": "hobi-server-api-collection",
+		"name": "Hobi Server API",
+		"description": "Complete API collection for Hobi Server with dummy data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "organizerId",
+			"value": "507f1f77bcf86cd799439011",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "507f1f77bcf86cd799439022",
+			"type": "string"
+		},
+		{
+			"key": "eventId",
+			"value": "507f1f77bcf86cd799439033",
+			"type": "string"
+		},
+		{
+			"key": "bookingId",
+			"value": "507f1f77bcf86cd799439044",
+			"type": "string"
+		},
+		{
+			"key": "serviceId",
+			"value": "507f1f77bcf86cd799439055",
+			"type": "string"
+		},
+		{
+			"key": "reviewId",
+			"value": "507f1f77bcf86cd799439066",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Authentication endpoints for users, organizers, and admins",
+			"item": [
+				{
+					"name": "Get OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"+919876543210\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/get-otp",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "get-otp"]
+						}
+					}
+				},
+				{
+					"name": "Send OTP (MSG91)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"+919876543210\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/send-otp",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "send-otp"]
+						}
+					}
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"+919876543210\",\n    \"otp\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify-otp",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "verify-otp"]
+						}
+					}
+				},
+				{
+					"name": "User Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"age\": 25,\n    \"gender\": \"Male\",\n    \"address\": \"123 Main Street, Mumbai, Maharashtra\",\n    \"password\": \"SecurePassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/user-signup",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "user-signup"]
+						}
+					}
+				},
+				{
+					"name": "User Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"SecurePassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/user-login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "user-login"]
+						}
+					}
+				},
+				{
+					"name": "Organizer Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"Event Master Organizers\",\n    \"email\": \"organizer@eventmaster.com\",\n    \"phone\": \"+919876543210\",\n    \"age\": 35,\n    \"gender\": \"Male\",\n    \"address\": \"456 Business Park, Bangalore, Karnataka\",\n    \"password\": \"OrganizerPass123!\",\n    \"type_of_firm\": \"Private Limited\",\n    \"PAN\": \"ABCDE1234F\",\n    \"GST\": \"29ABCDE1234F1Z5\",\n    \"bank_account\": \"1234567890123456\",\n    \"bank_account_type\": \"Current\",\n    \"IFSC_code\": \"SBIN0001234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/organizer-signup",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "organizer-signup"]
+						}
+					}
+				},
+				{
+					"name": "Organizer Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"organizer@eventmaster.com\",\n    \"password\": \"OrganizerPass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/organizer-login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "organizer-login"]
+						}
+					}
+				},
+				{
+					"name": "Admin Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"Admin User\",\n    \"email\": \"admin@hobi.com\",\n    \"password\": \"AdminSecure123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/admin-signup",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "admin-signup"]
+						}
+					}
+				},
+				{
+					"name": "Admin Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@hobi.com\",\n    \"password\": \"AdminSecure123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/admin-login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "admin-login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Events",
+			"description": "Event management endpoints",
+			"item": [
+				{
+					"name": "Create Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "banner_Image",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Weekend Music Festival",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "{\"name\": \"Music\", \"id\": \"cat001\"}",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Single",
+									"type": "text"
+								},
+								{
+									"key": "startDate",
+									"value": "2024-02-15",
+									"type": "text"
+								},
+								{
+									"key": "startTime",
+									"value": "18:00",
+									"type": "text"
+								},
+								{
+									"key": "endTime",
+									"value": "23:00",
+									"type": "text"
+								},
+								{
+									"key": "location",
+									"value": "{\"address\": \"Bandstand, Bandra West, Mumbai\", \"latitude\": \"19.0544\", \"longitude\": \"72.8209\"}",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Join us for an amazing weekend music festival featuring top artists and bands. Food stalls, drinks, and great vibes guaranteed!",
+									"type": "text"
+								},
+								{
+									"key": "isTicketed",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "tickets",
+									"value": "[{\"ticketName\": \"General Admission\", \"ticketPrice\": 500, \"quantity\": 100}, {\"ticketName\": \"VIP Pass\", \"ticketPrice\": 1500, \"quantity\": 50}]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events/create-event",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "create-event"]
+						}
+					}
+				},
+				{
+					"name": "Edit Event",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"eventId\": \"{{eventId}}\",\n    \"title\": \"Updated Weekend Music Festival\",\n    \"description\": \"Updated description - Join us for an amazing weekend music festival featuring top artists and bands!\",\n    \"startDate\": \"2024-02-20\",\n    \"startTime\": \"17:00\",\n    \"endTime\": \"22:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events/edit-event",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "edit-event"]
+						}
+					}
+				},
+				{
+					"name": "Update Event Banner",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}",
+									"type": "text"
+								},
+								{
+									"key": "banner_Image",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/events/update-event-banner",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "update-event-banner"]
+						}
+					}
+				},
+				{
+					"name": "Get Filtered Events",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/get-events?organizerId={{organizerId}}&category=Music&type=Single&page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "get-events"],
+							"query": [
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}"
+								},
+								{
+									"key": "category",
+									"value": "Music"
+								},
+								{
+									"key": "type",
+									"value": "Single"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Upcoming Events",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/get-upcoming-events?page=1&limit=10&search=Music&category=Music&type=Single&organizerId={{organizerId}}&isTicketed=true&verified=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "get-upcoming-events"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": "Music",
+									"description": "Search by event title (case-insensitive)"
+								},
+								{
+									"key": "category",
+									"value": "Music",
+									"description": "Filter by category name"
+								},
+								{
+									"key": "type",
+									"value": "Single",
+									"description": "Filter by event type (Single/Recurring)"
+								},
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}",
+									"description": "Filter by organizer ID"
+								},
+								{
+									"key": "isTicketed",
+									"value": "true",
+									"description": "Filter by ticketed events (true/false)"
+								},
+								{
+									"key": "verified",
+									"value": "true",
+									"description": "Filter by verified status (true/false)"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "View Event Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/view-event-stats?eventId={{eventId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "view-event-stats"],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "View Event Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/view-event-users?eventId={{eventId}}&page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "view-event-users"],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "View Event Performance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/view-event-performance?organizerId={{organizerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "view-event-performance"],
+							"query": [
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Event",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/events/delete-event?eventId={{eventId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "delete-event"],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "View Event for Users (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/events/view-event-for-users?eventId={{eventId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["events", "view-event-for-users"],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Bookings",
+			"description": "Booking management endpoints",
+			"item": [
+				{
+					"name": "Create Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{userId}}\",\n    \"eventId\": \"{{eventId}}\",\n    \"ticketId\": \"ticket123456789012\",\n    \"amountPaid\": 500,\n    \"ticketsCount\": 2,\n    \"paymentStatus\": \"Pending\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/create-booking",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "create-booking"]
+						}
+					}
+				},
+				{
+					"name": "Confirm Booking",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bookingId\": \"{{bookingId}}\",\n    \"paymentStatus\": \"Completed\",\n    \"transactionId\": \"txn_1234567890\",\n    \"orderId\": \"order_1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/confirm-booking",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "confirm-booking"]
+						}
+					}
+				},
+				{
+					"name": "Refund Booking",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bookingId\": \"{{bookingId}}\",\n    \"refundId\": \"rfnd_1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/refund-booking-bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "refund-booking-bookings"]
+						}
+					}
+				},
+				{
+					"name": "Update Booking Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bookingId\": \"{{bookingId}}\",\n    \"booking_status\": \"check-in\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/update-status-booking",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "update-status-booking"]
+						}
+					}
+				},
+				{
+					"name": "Get Organizer Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/get-organizer-booking?organizerId={{organizerId}}&page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "get-organizer-booking"],
+							"query": [
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Organizer",
+			"description": "Organizer profile and management endpoints",
+			"item": [
+				{
+					"name": "Get Organizer Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/organizer/details",
+							"host": ["{{baseUrl}}"],
+							"path": ["organizer", "details"]
+						}
+					}
+				},
+				{
+					"name": "Update Organizer Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"organizerId\": \"{{organizerId}}\",\n    \"full_name\": \"Updated Event Master Organizers\",\n    \"phone\": \"+919876543211\",\n    \"address\": \"Updated Address - 789 Business Park, Bangalore\",\n    \"type_of_firm\": \"LLP\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/organizer/update_profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["organizer", "update_profile"]
+						}
+					}
+				},
+				{
+					"name": "Get Basic Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/organizer/get-basic-stats?organizerId={{organizerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["organizer", "get-basic-stats"],
+							"query": [
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Organizer Documents",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}",
+									"type": "text"
+								},
+								{
+									"key": "licenses_for_establishment",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "certificate_of_incorporation",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "licenses_for_activity_undertaken",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "certifications",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "insurance_for_outdoor_activities",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "health_safety_documents",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/organizer/update_documents",
+							"host": ["{{baseUrl}}"],
+							"path": ["organizer", "update_documents"]
+						}
+					}
+				},
+				{
+					"name": "Update Profile Picture",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}",
+									"type": "text"
+								},
+								{
+									"key": "profile_pic",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/organizer/update_profile_pic",
+							"host": ["{{baseUrl}}"],
+							"path": ["organizer", "update_profile_pic"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"description": "Admin management endpoints",
+			"item": [
+				{
+					"name": "Get All Organizers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/getAllOrganizers?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "getAllOrganizers"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/getAllUsers?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "getAllUsers"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Organizer By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/getOrganizerById?organizerId={{organizerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "getOrganizerById"],
+							"query": [
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Edit Organizers",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"organizerId\": \"{{organizerId}}\",\n    \"is_verified\": true,\n    \"profit_percentage\": 15\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/editOrganizers",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "editOrganizers"]
+						}
+					}
+				},
+				{
+					"name": "Delete Provider",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"organizerId\": \"{{organizerId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/deleteProvider",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "deleteProvider"]
+						}
+					}
+				},
+				{
+					"name": "Create Provider",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"New Provider Organizer\",\n    \"email\": \"newprovider@example.com\",\n    \"phone\": \"+919876543299\",\n    \"password\": \"ProviderPass123!\",\n    \"type_of_firm\": \"Sole Proprietorship\",\n    \"address\": \"New Provider Address, Delhi\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/createProvider",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "createProvider"]
+						}
+					}
+				},
+				{
+					"name": "View Event Admin Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/view-event-admin?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "view-event-admin"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/dashboard-stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "dashboard-stats"]
+						}
+					}
+				},
+				{
+					"name": "Dashboard Category Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/dashboard-category",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "dashboard-category"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Payment",
+			"description": "Payment processing endpoints",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 1000,\n    \"currency\": \"INR\",\n    \"receipt\": \"receipt_order_12345\",\n    \"notes\": {\n        \"eventId\": \"{{eventId}}\",\n        \"userId\": \"{{userId}}\",\n        \"ticketType\": \"VIP Pass\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment/create-order",
+							"host": ["{{baseUrl}}"],
+							"path": ["payment", "create-order"]
+						}
+					}
+				},
+				{
+					"name": "Verify Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"razorpay_order_id\": \"order_1234567890\",\n    \"razorpay_payment_id\": \"pay_1234567890\",\n    \"razorpay_signature\": \"signature_hash_here\",\n    \"bookingId\": \"{{bookingId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payment/verify-payment",
+							"host": ["{{baseUrl}}"],
+							"path": ["payment", "verify-payment"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Services",
+			"description": "Service management endpoints",
+			"item": [
+				{
+					"name": "Create Service",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Event Photography\",\n    \"description\": \"Professional photography services for events\",\n    \"price\": 5000,\n    \"category\": \"Photography\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/services/create",
+							"host": ["{{baseUrl}}"],
+							"path": ["services", "create"]
+						}
+					}
+				},
+				{
+					"name": "Edit Service",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"serviceId\": \"{{serviceId}}\",\n    \"name\": \"Premium Event Photography\",\n    \"description\": \"Premium professional photography services for events\",\n    \"price\": 7500\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/services/edit",
+							"host": ["{{baseUrl}}"],
+							"path": ["services", "edit"]
+						}
+					}
+				},
+				{
+					"name": "Delete Service",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"serviceId\": \"{{serviceId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/services/delete",
+							"host": ["{{baseUrl}}"],
+							"path": ["services", "delete"]
+						}
+					}
+				},
+				{
+					"name": "Get Service By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/services/get?serviceId={{serviceId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["services", "get"],
+							"query": [
+								{
+									"key": "serviceId",
+									"value": "{{serviceId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Services",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/services/get-all?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["services", "get-all"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reviews",
+			"description": "Review management endpoints",
+			"item": [
+				{
+					"name": "Create Review",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{userId}}\",\n    \"eventId\": \"{{eventId}}\",\n    \"rating\": 4.5,\n    \"comment\": \"Amazing event! Great organization and fantastic experience. Would definitely recommend.\",\n    \"title\": \"Wonderful Experience\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reviews/create",
+							"host": ["{{baseUrl}}"],
+							"path": ["reviews", "create"]
+						}
+					}
+				},
+				{
+					"name": "Edit Review",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rating\": 5,\n    \"comment\": \"Updated review - This was the best event I've ever attended!\",\n    \"title\": \"Best Event Ever!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reviews/edit/{{reviewId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["reviews", "edit", "{{reviewId}}"]
+						}
+					}
+				},
+				{
+					"name": "Report Review",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewId\": \"{{reviewId}}\",\n    \"reason\": \"Inappropriate content\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reviews/report_review",
+							"host": ["{{baseUrl}}"],
+							"path": ["reviews", "report_review"]
+						}
+					}
+				},
+				{
+					"name": "Get All Reviews",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/reviews/getAll?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["reviews", "getAll"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Filter Reviews",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/reviews/filter?eventId={{eventId}}&rating=4&page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["reviews", "filter"],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}"
+								},
+								{
+									"key": "rating",
+									"value": "4"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Review",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reviewId\": \"{{reviewId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reviews/delete",
+							"host": ["{{baseUrl}}"],
+							"path": ["reviews", "delete"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"description": "Transaction management endpoints",
+			"item": [
+				{
+					"name": "Create Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bookingId\": \"{{bookingId}}\",\n    \"amount\": 1500,\n    \"type\": \"Credit\",\n    \"description\": \"Booking payment for VIP Pass\",\n    \"paymentMethod\": \"Razorpay\",\n    \"transactionId\": \"txn_1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transaction/create",
+							"host": ["{{baseUrl}}"],
+							"path": ["transaction", "create"]
+						}
+					}
+				},
+				{
+					"name": "Get All Transactions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/transaction/get-all?page=1&limit=10&organizerId={{organizerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["transaction", "get-all"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"description": "Notification endpoints",
+			"item": [
+				{
+					"name": "Get Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/notifications/get_notification?receiverId={{userId}}&page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["notifications", "get_notification"],
+							"query": [
+								{
+									"key": "receiverId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

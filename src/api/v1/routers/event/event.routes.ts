@@ -25,8 +25,6 @@ router.patch("/update-event-banner", upload.fields([{ name: "banner_Image", maxC
 
 router.get("/get-events", getFilteredEvents);
 
-router.get("/get-upcoming-events", getUpcomingEvents);
-
 router.get("/view-event-stats", getBookingStatistics);
 
 router.get("/view-event-users", getBookingsByEvent);
@@ -38,5 +36,8 @@ router.get("/delete-event", deleteEvent);
 // PUBLIC ROUTES
 
 router.get("/view-event-for-users", getEventByIdForUsers);
+
+router.get("/get-upcoming-events", getUpcomingEvents);
+
 
 module.exports = router;

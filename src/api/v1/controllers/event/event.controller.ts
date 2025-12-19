@@ -179,13 +179,57 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 		const currentDateTime = new Date(); // Get current date & time
 		console.log("Fetching upcoming events. Current time:", currentDateTime);
 
-		// Pagination parameters
-		const page = parseInt(req.query.page as string) || 1; // Default page = 1
-		const limit = parseInt(req.query.limit as string) || 10; // Default limit = 10
-		const skip = (page - 1) * limit;
+		// Extract pagination and filter parameters
+		const { search, page = "1", limit = "10", category, type, organizerId, isTicketed, verified, ...otherFilters } = req.query;
 
-		// Fetch all events first (since date fields are stored as strings)
-		const events = await EventModel.find();
+		const pageNum = parseInt(page as string, 10) || 1;
+		const limitNum = parseInt(limit as string, 10) || 10;
+		const skip = (pageNum - 1) * limitNum;
+
+		// Build query filters
+		const queryFilters: any = {};
+
+		// Search by title (case-insensitive)
+		if (search) {
+			queryFilters.title = { $regex: search, $options: "i" };
+		}
+
+		// Filter by category
+		if (category) {
+			queryFilters.category = category;
+		}
+
+		// Filter by event type (Single/Recurring)
+		if (type) {
+			queryFilters.type = type;
+		}
+
+		// Filter by organizerId
+		if (organizerId && mongoose.Types.ObjectId.isValid(organizerId as string)) {
+			queryFilters.organizerId = new mongoose.Types.ObjectId(organizerId as string);
+		}
+
+		// Filter by isTicketed
+		if (isTicketed !== undefined) {
+			queryFilters.isTicketed = isTicketed === "true";
+		}
+
+		// Filter by verified status
+		if (verified !== undefined) {
+			queryFilters.verified = verified === "true";
+		}
+
+		// Add any other dynamic filters
+		Object.keys(otherFilters).forEach((key) => {
+			if (otherFilters[key]) {
+				queryFilters[key] = otherFilters[key];
+			}
+		});
+
+		console.log("Query filters:", queryFilters);
+
+		// Fetch events with filters (since date fields are stored as strings)
+		const events = await EventModel.find(queryFilters).populate("organizerId", "full_name email profile_pic");
 
 		// Filter only upcoming events
 		const upcomingEvents = events.filter((event) => {
@@ -202,22 +246,22 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 
 		// Pagination logic
 		const totalEvents = upcomingEvents.length;
-		const paginatedEvents = upcomingEvents.slice(skip, skip + limit);
+		const paginatedEvents = upcomingEvents.slice(skip, skip + limitNum);
 
 		// If no upcoming events are found
 		if (!paginatedEvents.length) {
 			return res.status(404).json({
 				message: MESSAGE.get.custom("No upcoming events found"),
 				result: [],
-				totalPages: Math.ceil(totalEvents / limit),
-				currentPage: page
+				totalPages: Math.ceil(totalEvents / limitNum),
+				currentPage: pageNum
 			});
 		}
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
-			totalPages: Math.ceil(totalEvents / limit),
-			currentPage: page,
+			totalPages: Math.ceil(totalEvents / limitNum),
+			currentPage: pageNum,
 			totalEvents,
 			result: paginatedEvents
 		});
