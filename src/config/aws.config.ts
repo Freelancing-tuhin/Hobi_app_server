@@ -1,15 +1,15 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
 const credential = {
-	accessKeyId: "AKIAXZ5NGBG43LQTXUZL",
-	secretAccessKey: "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"
+	accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ""
 };
 
 export const s3Client = new S3Client({
-	region: "eu-north-1",
+	region: process.env.AWS_REGION || "us-east-1",
 	credentials: credential
 });
 
-export const s3Url = "https://hobiapp.s3.eu-north-1.amazonaws.com";
+export const s3Url = process.env.AWS_S3_URL || "";
 
-export const bucketName = "hobiapp";
+export const bucketName = process.env.AWS_S3_BUCKET || "";
