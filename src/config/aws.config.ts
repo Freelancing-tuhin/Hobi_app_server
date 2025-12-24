@@ -1,4 +1,9 @@
+import dotenv from "dotenv";
+import path from "path";
 import { S3Client } from "@aws-sdk/client-s3";
+
+// Ensure environment variables are loaded
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const credential = {
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",

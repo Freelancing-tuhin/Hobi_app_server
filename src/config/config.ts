@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
+import path from "path";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from the src folder
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 export const NODE_ENV: "PROD" | "DEV" | "LOCAL" = "LOCAL";
 export const JWT_SECRET = "xnova2023";
