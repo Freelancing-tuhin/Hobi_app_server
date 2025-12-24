@@ -1571,6 +1571,155 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "User",
+			"description": "User profile and account management endpoints",
+			"item": [
+				{
+					"name": "Get User Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/details",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "details"]
+						}
+					}
+				},
+				{
+					"name": "Get User Profile With Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/profile-with-bookings?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "profile-with-bookings"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/bookings?page=1&limit=10&status=Pending",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "bookings"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "Pending",
+									"description": "Filter by booking status (Pending/check-in/in-progress/Completed/Cancelled)"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"John Doe Updated\",\n    \"age\": 26,\n    \"gender\": \"Male\",\n    \"address\": \"456 New Street, Mumbai, Maharashtra\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/update-profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "update-profile"]
+						}
+					}
+				},
+				{
+					"name": "Update User Password",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentPassword\": \"OldPassword123!\",\n    \"newPassword\": \"NewSecurePassword456!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/update-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "update-password"]
+						}
+					}
+				},
+				{
+					"name": "Delete User Account",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/delete-account",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "delete-account"]
+						}
+					}
+				}
+			]
 		}
 	]
 }

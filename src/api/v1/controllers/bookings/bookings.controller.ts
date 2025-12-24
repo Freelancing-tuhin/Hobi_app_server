@@ -6,8 +6,8 @@ import { MESSAGE } from "../../../../constants/message";
 import Razorpay from "razorpay";
 
 const razorpayInstance = new Razorpay({
-	key_id: "rzp_test_WOvg0OAJCnGejI",
-	key_secret: "ZpwuC7sSd9rer6BJLvY3HId9"
+	key_id: "rzp_test_RtOjRPJYhJCVGW",
+	key_secret: "r8gKo3ix3yK1zYliGKjj0o48"
 });
 
 export const createBooking = async (req: Request, res: Response) => {
