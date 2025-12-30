@@ -54,6 +54,10 @@ export const createEvent = async (req: Request, res: Response) => {
 		};
 
 		const newEvent = await new EventModel(payload).save();
+		await newEvent.populate([
+			{ path: "organizerId", select: "full_name email" },
+			{ path: "category", select: "service_name" }
+		]);
 
 		await createNotification(
 			"Event Created",
@@ -99,7 +103,10 @@ export const editEvent = async (req: Request, res: Response) => {
 		const updatedEvent = await EventModel.findByIdAndUpdate(eventId, eventDetails, {
 			new: true,
 			runValidators: true
-		}).exec(); // Ensures query execution
+		})
+			.populate("organizerId", "full_name email")
+			.populate("category", "service_name")
+			.exec();
 
 		if (!updatedEvent) {
 			return res.status(404).json({
@@ -229,7 +236,9 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 		console.log("Query filters:", queryFilters);
 
 		// Fetch events with filters (since date fields are stored as strings)
-		const events = await EventModel.find(queryFilters).populate("organizerId", "full_name email profile_pic");
+		const events = await EventModel.find(queryFilters)
+			.populate("organizerId", "full_name email profile_pic")
+			.populate("category", "service_name");
 
 		// Filter only upcoming events
 		const upcomingEvents = events.filter((event) => {
@@ -329,6 +338,7 @@ export const getFilteredEvents = async (req: Request, res: Response) => {
 		const totalEvents = await EventModel.countDocuments(filters);
 		const events = await EventModel.find(filters)
 			.populate("organizerId", "full_name email")
+			.populate("category", "service_name")
 			.skip(skip)
 			.limit(limitNum);
 

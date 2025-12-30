@@ -12,7 +12,11 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 		},
 
 		title: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		category: SCHEMA_DEFINITION_PROPERTY.optionalNullObjectId,
+		category: {
+			type: Schema.Types.ObjectId,
+			ref: "services",
+			default: null
+		},
 		type: {
 			type: String,
 			enum: ["Single", "Recurring"],

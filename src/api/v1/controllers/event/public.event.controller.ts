@@ -9,6 +9,7 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 		// Fetch the event along with tickets
 		const event = await EventModel.findById(eventId)
 			.populate("organizerId", "full_name email phone profile_pic") // Only fetch these fields
+			.populate("category", "service_name")
 			.lean();
 
 		if (!event) {
