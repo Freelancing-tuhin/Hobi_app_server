@@ -38,14 +38,22 @@ export const signUpUser = async (req: Request, res: Response) => {
 export const loginUser = async (req: any, res: Response) => {
 	try {
 		const userInstance = req.user;
-
+		const {password} = req.body;
+ 
 		const token = jwt.sign({ id: userInstance._id }, JWT_SECRET);
 
-		return res.status(200).json({
-			message: MESSAGE.post.succ,
-			token,
-			result: userInstance
-		});
+		if(password === userInstance.password){
+			return res.status(200).json({
+				message: MESSAGE.post.succ,
+				token,
+				result: userInstance
+			});
+		}else{
+			return res.status(400).json({
+				message: MESSAGE.post.fail,
+				error: "Invalid password"
+			});
+		}
 	} catch (error) {
 		console.error("Error during login:", error);
 		return res.status(400).json({

@@ -4,10 +4,10 @@ import ProviderModel from "../../models/organizer.model";
 import AdminModel from "../../models/admin.model";
 
 export const validateUserExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
-	const { phone } = req.body;
+	const { email } = req.body;
 
 	try {
-		const userInstance = await UserModel.findOne({ phone });
+		const userInstance = await UserModel.findOne({ email });
 		if (!userInstance) {
 			return res.status(404).json({
 				message: "User does not exist"
@@ -26,10 +26,10 @@ export const validateUserExistenceMiddleware = async (req: any, res: Response, n
 };
 
 export const validateProviderExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
-	const { phone } = req.body;
+	const { email } = req.body;
 
 	try {
-		const userInstance = await ProviderModel.findOne({ phone });
+		const userInstance = await ProviderModel.findOne({ email });
 		if (!userInstance) {
 			return res.status(404).json({
 				message: "User does not exist"
