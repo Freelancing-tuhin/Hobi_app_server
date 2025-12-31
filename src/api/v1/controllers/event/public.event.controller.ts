@@ -8,7 +8,7 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 
 		// Fetch the event along with tickets
 		const event = await EventModel.findById(eventId)
-			.populate("organizerId", "full_name email phone profile_pic") // Only fetch these fields
+			.populate("organizerId", "full_name email phone profile_pic age gender") // Only fetch these fields
 			.populate("category", "service_name")
 			.lean();
 
@@ -28,12 +28,13 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 				(ticket: { _id: { toString: () => string }; ticketName: any; ticketPrice: any; quantity: number }) => {
 					const bookedTickets = bookings
 						.filter(
-							(booking: { ticketId: { toString: () => string } }) =>
-								booking.ticketId.toString() === ticket._id.toString()
+							(booking: { ticketId: { toString: () => string }; transactionId?: string }) =>
+								booking.ticketId.toString() === ticket._id.toString() && booking.transactionId
 						)
 						.reduce((acc: any, booking: { ticketsCount: any }) => acc + booking.ticketsCount, 0);
 
 					return {
+						_id: ticket._id,
 						ticketName: ticket.ticketName,
 						ticketPrice: ticket.ticketPrice,
 						totalQuantity: ticket.quantity,
