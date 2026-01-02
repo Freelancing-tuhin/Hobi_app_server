@@ -46,33 +46,71 @@ export const createEvent = async (req: Request, res: Response) => {
 			}
 		}
 
-		const payload = {
-			...eventDetails,
-			verified: false,
-			banner_Image: banner_Image_Url,
-			tickets
-		};
+		// Parse eventDates array - if provided, create multiple events with different dates
+		let eventDates: string[] = [];
+		if (eventDetails.eventDates) {
+			try {
+				const parsedDates = JSON.parse(eventDetails.eventDates);
+				if (Array.isArray(parsedDates) && parsedDates.length > 0) {
+					eventDates = parsedDates;
+				}
+			} catch (error) {
+				return res.status(400).json({
+					message: "Invalid eventDates format, must be a valid JSON array"
+				});
+			}
+		}
 
-		const newEvent = await new EventModel(payload).save();
-		await newEvent.populate([
-			{ path: "organizerId", select: "full_name email" },
-			{ path: "category", select: "service_name" }
-		]);
+		// If no eventDates provided, use startDate from eventDetails as single date
+		if (eventDates.length === 0 && eventDetails.startDate) {
+			eventDates = [eventDetails.startDate];
+		}
 
-		await createNotification(
-			"Event Created",
-			"A ripple in the stream, a sudden bloom of possibility. A fresh chapter opens: new event created.",
-			newEvent?._id,
-			"id",
-			newEvent?.organizerId,
-			"organizers",
-			`${newEvent?._id}`,
-			"events"
-		);
+		if (eventDates.length === 0) {
+			return res.status(400).json({
+				message: MESSAGE.post.custom("At least one event date is required")
+			});
+		}
+
+		const createdEvents: any[] = [];
+
+		// Loop through each date and create an event
+		for (const eventDate of eventDates) {
+			const payload = {
+				...eventDetails,
+				verified: false,
+				banner_Image: banner_Image_Url,
+				tickets,
+				startDate: eventDate // Override with the current date in loop
+			};
+
+			// Remove eventDates from payload as it's not needed in the model
+			delete payload.eventDates;
+
+			const newEvent = await new EventModel(payload).save();
+			await newEvent.populate([
+				{ path: "organizerId", select: "full_name email" },
+				{ path: "category", select: "service_name" }
+			]);
+
+			await createNotification(
+				"Event Created",
+				"A ripple in the stream, a sudden bloom of possibility. A fresh chapter opens: new event created.",
+				newEvent?._id,
+				"id",
+				newEvent?.organizerId,
+				"organizers",
+				`${newEvent?._id}`,
+				"events"
+			);
+
+			createdEvents.push(newEvent);
+		}
 
 		return res.status(200).json({
 			message: MESSAGE.post.succ,
-			result: newEvent
+			result: createdEvents.length === 1 ? createdEvents[0] : createdEvents,
+			totalEventsCreated: createdEvents.length
 		});
 	} catch (error) {
 		console.error(error);
