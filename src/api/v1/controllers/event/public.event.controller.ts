@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import EventModel from "../../../../models/event.model";
 import BookingModel from "../../../../models/booking.model";
+import OrganizerModel from "../../../../models/organizer.model";
+import mongoose from "mongoose";
 
 export const getEventByIdForUsers = async (req: Request, res: Response) => {
 	try {
@@ -56,5 +58,49 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 	} catch (error) {
 		console.error("Error fetching event:", error);
 		res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+/**
+ * Get organizer profile with selected details and all their events
+ * @param organizerId - The ID of the organizer
+ * @returns Organizer details and their events
+ */
+export const getOrganizerProfileWithEvents = async (req: Request, res: Response) => {
+	try {
+		const { organizerId } = req.query;
+
+		// Validate organizerId
+		if (!organizerId || !mongoose.Types.ObjectId.isValid(organizerId as string)) {
+			return res.status(400).json({ message: "Invalid or missing organizer ID" });
+		}
+
+		// Fetch organizer with selected fields only
+		const organizer = await OrganizerModel.findById(organizerId)
+			.select("full_name profile_pic ratings is_verified address phone email service_category")
+			.populate("service_category", "service_name")
+			.lean();
+
+		if (!organizer) {
+			return res.status(404).json({ message: "Organizer not found" });
+		}
+
+		// Fetch all events by this organizer
+		const events = await EventModel.find({ organizerId: new mongoose.Types.ObjectId(organizerId as string) })
+			.populate("category", "service_name")
+			.sort({ createdAt: -1 })
+			.lean();
+
+		return res.status(200).json({
+			message: "Organizer profile fetched successfully",
+			result: {
+				organizer,
+				events,
+				totalEvents: events.length
+			}
+		});
+	} catch (error) {
+		console.error("Error fetching organizer profile:", error);
+		return res.status(500).json({ message: "Internal server error" });
 	}
 };
