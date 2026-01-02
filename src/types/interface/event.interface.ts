@@ -19,4 +19,5 @@ export interface IEvent {
 	ratings?: number;
 
 	verified: boolean;
+	supportingImages?: string[];
 }

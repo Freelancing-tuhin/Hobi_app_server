@@ -46,7 +46,11 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 			}
 		],
 		verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,
-		ratings: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber
+		ratings: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+		supportingImages: {
+			type: [String],
+			default: []
+		}
 	},
 	GENERAL_SCHEMA_OPTIONS
 );
