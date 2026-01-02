@@ -26,10 +26,10 @@ export const validateUserExistenceMiddleware = async (req: any, res: Response, n
 };
 
 export const validateProviderExistenceMiddleware = async (req: any, res: Response, next: NextFunction) => {
-	const { email } = req.body;
+	const { phone } = req.body;
 
 	try {
-		const userInstance = await ProviderModel.findOne({ email });
+		const userInstance = await ProviderModel.findOne({ phone });
 		if (!userInstance) {
 			return res.status(404).json({
 				message: "User does not exist"

@@ -25,13 +25,13 @@ export const checkUserExistenceMiddleware = async (req: Request, res: Response, 
 };
 
 export const checkProviderExistenceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-	const { email } = req.body;
+	const { phone } = req.body;
 
 	try {
-		const existingUser = await ProviderModel.findOne({ email });
+		const existingUser = await ProviderModel.findOne({ phone });
 		if (existingUser) {
 			return res.status(409).json({
-				message: "User with this email already exists"
+				message: "User with this phone number already exists"
 			});
 		}
 
@@ -46,10 +46,10 @@ export const checkProviderExistenceMiddleware = async (req: Request, res: Respon
 };
 
 export const checkAdminExistenceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-	const { email } = req.body;
+	const { phone } = req.body;
 
 	try {
-		const existingUser = await AdminModel.findOne({ email });
+		const existingUser = await AdminModel.findOne({ phone });
 		if (existingUser) {
 			return res.status(409).json({
 				message: "User with this phone number already exists"
