@@ -13,9 +13,6 @@ const razorpayInstance = new Razorpay({
 });
 
 export const createBooking = async (req: Request, res: Response) => {
-	const session = await mongoose.startSession();
-	session.startTransaction();
-
 	try {
 		const { userId, eventId, ticketId, ticketsCount, receipt } = req.body;
 
@@ -25,9 +22,8 @@ export const createBooking = async (req: Request, res: Response) => {
 			});
 		}
 
-		const event = await EventModel.findById(eventId).session(session);
+		const event = await EventModel.findById(eventId);
 		if (!event) {
-			await session.abortTransaction();
 			return res.status(404).json({
 				message: MESSAGE.post.custom("Event not found")
 			});
@@ -35,18 +31,18 @@ export const createBooking = async (req: Request, res: Response) => {
 
 		const ticket = event.tickets.find((t: { _id: { toString: () => any } }) => t._id.toString() === ticketId);
 		if (!ticket) {
-			await session.abortTransaction();
 			return res.status(400).json({
 				message: MESSAGE.post.custom("Invalid Ticket ID")
 			});
 		}
 
-		// Check total tickets booked for this ticket ID
+		// Check total tickets booked for this ticket ID (only confirmed bookings with transactionId)
 		const totalBookedTickets = await BookingModel.aggregate([
 			{
 				$match: {
 					eventId: new mongoose.Types.ObjectId(eventId),
-					ticketId: new mongoose.Types.ObjectId(ticketId)
+					ticketId: new mongoose.Types.ObjectId(ticketId),
+					transactionId: { $ne: null }
 				}
 			},
 			{
@@ -55,13 +51,12 @@ export const createBooking = async (req: Request, res: Response) => {
 					totalBooked: { $sum: "$ticketsCount" }
 				}
 			}
-		]).session(session);
+		]);
 
 		const bookedCount = totalBookedTickets.length > 0 ? totalBookedTickets[0].totalBooked : 0;
 
 		// Check if enough tickets are available
 		if (bookedCount + ticketsCount > ticket.quantity) {
-			await session.abortTransaction();
 			return res.status(400).json({
 				message: MESSAGE.post.custom("Ticket sold out or not enough tickets available")
 			});
@@ -69,9 +64,8 @@ export const createBooking = async (req: Request, res: Response) => {
 
 		// Process payment
 		const amount = ticket.ticketPrice * ticketsCount;
-		// const instance = new Razorpay({ key_id: "rzp_test_WOvg0OAJCnGejI", key_secret: "ZpwuC7sSd9rer6BJLvY3HId9" });
 		const response = await razorpayInstance.orders.create({
-			amount: (amount +  calculatePlatformFee(ticket.ticketPrice)) * 100 ,
+			amount: (amount + calculatePlatformFee(ticket.ticketPrice)) * 100,
 			currency: "INR",
 			receipt: receipt
 		});
@@ -86,10 +80,7 @@ export const createBooking = async (req: Request, res: Response) => {
 			transactionId: null,
 			paymentStatus: "Pending",
 			orderId: response.id
-		}).save({ session });
-
-		await session.commitTransaction();
-		session.endSession();
+		}).save();
 
 		return res.status(200).json({
 			message: MESSAGE.post.succ,
@@ -97,8 +88,6 @@ export const createBooking = async (req: Request, res: Response) => {
 			payment: response
 		});
 	} catch (error) {
-		await session.abortTransaction();
-		session.endSession();
 		console.error(error);
 		return res.status(400).json({
 			message: MESSAGE.post.fail,
@@ -106,6 +95,7 @@ export const createBooking = async (req: Request, res: Response) => {
 		});
 	}
 };
+
 
 export const updateBooking = async (req: Request, res: Response) => {
 	try {
