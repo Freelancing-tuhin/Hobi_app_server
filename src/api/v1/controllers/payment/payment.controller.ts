@@ -4,12 +4,9 @@ import axios from "axios";
 import { createHmac } from "crypto";
 import Razorpay from "razorpay";
 
-const RAZORPAY_KEY_ID = "rzp_test_WOvg00AJCnGejI"; // Replace with your test or live key
-const RAZORPAY_SECRET = "ZpwuC7sSd9rer6BJLvY3HId9"; // Replace with your secret key
-
 export const createOrder = async (req: Request, res: Response) => {
 	try {
-		const instance = new Razorpay({ key_id: "rzp_test_WOvg0OAJCnGejI", key_secret: "ZpwuC7sSd9rer6BJLvY3HId9" });
+		const instance = new Razorpay({ key_id: "rzp_test_RxwbroJYSpkRhI", key_secret: "gNK42T2F9zVuRSXqGIyZIUUc" });
 		const { amount, currency, receipt } = req.body;
 
 		const response = await instance.orders.create({

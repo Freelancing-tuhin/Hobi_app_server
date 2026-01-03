@@ -8,8 +8,8 @@ import { calculatePlatformFee } from "../../../../services/platformFee";
 import { createTransaction } from "../../../../services/transaction.service";
 
 const razorpayInstance = new Razorpay({
-	key_id: "rzp_test_RtOjRPJYhJCVGW",
-	key_secret: "r8gKo3ix3yK1zYliGKjj0o48"
+	key_id: "rzp_test_RxwbroJYSpkRhI",
+	key_secret: "gNK42T2F9zVuRSXqGIyZIUUc"
 });
 
 export const createBooking = async (req: Request, res: Response) => {
