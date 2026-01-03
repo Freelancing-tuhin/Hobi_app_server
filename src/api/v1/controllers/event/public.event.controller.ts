@@ -3,6 +3,17 @@ import EventModel from "../../../../models/event.model";
 import BookingModel from "../../../../models/booking.model";
 import OrganizerModel from "../../../../models/organizer.model";
 import mongoose from "mongoose";
+import { calculatePlatformFee } from "../../../../services/platformFee";
+
+/**
+ * Calculate platform fee based on ticket price
+ * Fee structure:
+ * ₹0 – ₹500: Base ₹20 + 6%, No Cap
+ * ₹600 – ₹1500: Base ₹30 + 7%, No Cap
+ * ₹1600 – ₹3000: Base ₹40 + 6%, No Cap
+ * ₹3000+: Base ₹60 + 4%, Max ₹300
+ */
+
 
 export const getEventByIdForUsers = async (req: Request, res: Response) => {
 	try {
@@ -40,7 +51,8 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 						ticketName: ticket.ticketName,
 						ticketPrice: ticket.ticketPrice,
 						totalQuantity: ticket.quantity,
-						available: ticket.quantity - bookedTickets // Remaining tickets
+						available: ticket.quantity - bookedTickets, // Remaining tickets
+						platformFee: calculatePlatformFee(ticket.ticketPrice) // Platform fee based on ticket price
 					};
 				}
 			) || [];

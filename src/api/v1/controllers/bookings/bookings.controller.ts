@@ -4,6 +4,7 @@ import BookingModel from "../../../../models/booking.model";
 import EventModel from "../../../../models/event.model";
 import { MESSAGE } from "../../../../constants/message";
 import Razorpay from "razorpay";
+import { calculatePlatformFee } from "../../../../services/platformFee";
 
 const razorpayInstance = new Razorpay({
 	key_id: "rzp_test_RtOjRPJYhJCVGW",
@@ -69,7 +70,7 @@ export const createBooking = async (req: Request, res: Response) => {
 		const amount = ticket.ticketPrice * ticketsCount;
 		// const instance = new Razorpay({ key_id: "rzp_test_WOvg0OAJCnGejI", key_secret: "ZpwuC7sSd9rer6BJLvY3HId9" });
 		const response = await razorpayInstance.orders.create({
-			amount: amount * 100,
+			amount: (amount +  calculatePlatformFee(ticket.ticketPrice)) * 100 ,
 			currency: "INR",
 			receipt: receipt
 		});
@@ -107,7 +108,7 @@ export const createBooking = async (req: Request, res: Response) => {
 
 export const updateBooking = async (req: Request, res: Response) => {
 	try {
-		const { bookingId, transactionId } = req.body;
+		const { bookingId, transactionId ,platformfee} = req.body;
 
 		// Find booking
 		const booking: any = await BookingModel.findById(bookingId);
@@ -134,7 +135,7 @@ export const updateBooking = async (req: Request, res: Response) => {
 		}
 
 		// Update booking details
-		booking.amountPaid = payment.amount / 100; // Razorpay returns amount in paise
+		booking.amountPaid = (payment.amount / 100) - platformfee; // Razorpay returns amount in paise
 		booking.transactionId = transactionId;
 		booking.paymentStatus = "Completed";
 		booking.booking_status = "Pending"; // Assuming you want to update this
