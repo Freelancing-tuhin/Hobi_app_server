@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import UserModel from "../../../../models/user.model";
 import BookingModel from "../../../../models/booking.model";
+import EventModel from "../../../../models/event.model";
 import { MESSAGE } from "../../../../constants/message";
 import mongoose from "mongoose";
+import { calculatePlatformFee } from "../../../../services/platformFee";
 
 /**
  * Get user details by ID (from JWT token)
@@ -43,12 +45,12 @@ export const getUserDetails = async (req: any, res: Response) => {
 
 /**
  * Get user details with all bookings
- * Returns user profile along with their booking history
+ * Returns user profile along with their booking history including ticket price, availability, and platform fee
  */
 export const getUserWithBookings = async (req: any, res: Response) => {
 	try {
 		// Get userId from JWT token or query params
-		const userId =  req.query.userId;
+		const userId = req.query.userId;
 
 		if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).json({
@@ -73,21 +75,69 @@ export const getUserWithBookings = async (req: any, res: Response) => {
 		// Get total bookings count for pagination
 		const totalBookings = await BookingModel.countDocuments({ userId });
 
-		// Get user's bookings with event details populated
-		const bookings = await BookingModel.find({ userId })
+		// Get user's bookings with event details populated (including tickets)
+		const bookings: any = await BookingModel.find({ userId })
 			.populate({
 				path: "eventId",
-				select: "title description startDate startTime endTime location banner_Image category type"
+				select: "title description startDate startTime endTime location banner_Image category type tickets"
 			})
 			.sort({ createdAt: -1 })
 			.skip(skip)
-			.limit(limit);
+			.limit(limit)
+			.lean();
+
+		// Enhance bookings with ticket details (price, availability, platform fee)
+		const enhancedBookings = await Promise.all(
+			bookings.map(async (booking: any) => {
+				const event = booking.eventId;
+				if (!event || !event.tickets) {
+					return {
+						...booking,
+						ticketDetails: null
+					};
+				}
+
+				// Find the matching ticket from event tickets
+				const ticket = event.tickets.find(
+					(t: any) => t._id.toString() === booking.ticketId.toString()
+				);
+
+				if (!ticket) {
+					return {
+						...booking,
+						ticketDetails: null
+					};
+				}
+
+				// Calculate booked tickets for this specific ticket (only confirmed bookings with transactionId)
+				const allBookingsForEvent: any = await BookingModel.find({ eventId: event._id }).lean();
+				const bookedTickets = allBookingsForEvent
+					.filter(
+						(b: any) =>
+							b.ticketId.toString() === ticket._id.toString() && b.transactionId
+					)
+					.reduce((acc: number, b: any) => acc + (b.ticketsCount || 0), 0);
+
+				// Add ticket details to booking
+				return {
+					...booking,
+					ticketDetails: {
+						_id: ticket._id,
+						ticketName: ticket.ticketName,
+						ticketPrice: ticket.ticketPrice,
+						totalQuantity: ticket.quantity,
+						available: ticket.quantity - bookedTickets,
+						platformFee: calculatePlatformFee(ticket.ticketPrice)
+					}
+				};
+			})
+		);
 
 		return res.status(200).json({
 			message: MESSAGE.get.succ,
 			result: {
 				user,
-				bookings
+				bookings: enhancedBookings
 			},
 			totalBookings,
 			totalPages: Math.ceil(totalBookings / limit),
