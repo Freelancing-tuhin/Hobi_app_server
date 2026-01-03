@@ -9,14 +9,13 @@ const transactionSchema: Schema<ITransaction> = new Schema<ITransaction>(
 			...SCHEMA_DEFINITION_PROPERTY.requiredString,
 			enum: ["credit", "debit", "transfer", "bill_payment", "booking"]
 		},
-		amount: SCHEMA_DEFINITION_PROPERTY.requiredString,
-		status: {
-			...SCHEMA_DEFINITION_PROPERTY.requiredString,
-			enum: ["success", "failed", "pending"]
-		},
+		amount: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
 		senderId: SCHEMA_DEFINITION_PROPERTY.requiredString,
 		receiverId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		reference: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+		reference: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		platformFee: SCHEMA_DEFINITION_PROPERTY.optionalNullObject,
+		orderId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		razorPay_payment_id: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 	},
 	GENERAL_SCHEMA_OPTIONS
 );

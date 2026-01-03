@@ -5,6 +5,7 @@ import EventModel from "../../../../models/event.model";
 import { MESSAGE } from "../../../../constants/message";
 import Razorpay from "razorpay";
 import { calculatePlatformFee } from "../../../../services/platformFee";
+import { createTransaction } from "../../../../services/transaction.service";
 
 const razorpayInstance = new Razorpay({
 	key_id: "rzp_test_RtOjRPJYhJCVGW",
@@ -133,15 +134,25 @@ export const updateBooking = async (req: Request, res: Response) => {
 				paymentStatus: payment.status
 			});
 		}
-
+	const transaction:any = await createTransaction({
+			type: "booking",
+			amount: (payment.amount / 100) - platformfee,
+			senderId: booking.userId,
+			receiverId: booking.eventId,
+			reference: booking.receipt,
+			platformFee: platformfee,
+			orderId: booking.orderId,
+			razorPay_payment_id : transactionId
+		});
 		// Update booking details
 		booking.amountPaid = (payment.amount / 100) - platformfee; // Razorpay returns amount in paise
-		booking.transactionId = transactionId;
+		booking.transactionId = transaction?._id;
 		booking.paymentStatus = "Completed";
 		booking.booking_status = "Pending"; // Assuming you want to update this
 
 		const updatedBooking = await booking.save();
 
+	
 		return res.status(200).json({
 			message: MESSAGE.put.succ,
 			result: updatedBooking
