@@ -6,6 +6,7 @@ import { MESSAGE } from "../../../../constants/message";
 import Razorpay from "razorpay";
 import { calculatePlatformFee } from "../../../../services/platformFee";
 import { createTransaction } from "../../../../services/transaction.service";
+import { creditWallet } from "../../../../services/wallet.service";
 
 const razorpayInstance = new Razorpay({
 	key_id: "rzp_test_RxwbroJYSpkRhI",
@@ -124,25 +125,48 @@ export const updateBooking = async (req: Request, res: Response) => {
 				paymentStatus: payment.status
 			});
 		}
-	const transaction:any = await createTransaction({
+
+		// Calculate ticket amount (payment minus platform fee)
+		const ticketAmount = (payment.amount / 100) - platformfee;
+
+		// Create booking transaction
+		const transaction: any = await createTransaction({
 			type: "booking",
-			amount: (payment.amount / 100) - platformfee,
+			amount: ticketAmount,
 			senderId: booking.userId,
 			receiverId: booking.eventId,
 			reference: booking.receipt,
 			platformFee: platformfee,
 			orderId: booking.orderId,
-			razorPay_payment_id : transactionId
+			razorPay_payment_id: transactionId,
+			bookingId: bookingId
 		});
+
 		// Update booking details
-		booking.amountPaid = (payment.amount / 100) - platformfee; // Razorpay returns amount in paise
+		booking.amountPaid = ticketAmount;
 		booking.transactionId = transaction?._id;
 		booking.paymentStatus = "Completed";
-		booking.booking_status = "Pending"; // Assuming you want to update this
+		booking.booking_status = "Pending";
 
 		const updatedBooking = await booking.save();
 
-	
+		// Credit organizer's wallet with the ticket amount (excluding platform fee)
+		try {
+			const event: any = await EventModel.findById(booking.eventId);
+			if (event && event.organizerId) {
+				const organizerId = event.organizerId.toString();
+				
+				// Credit the wallet
+				const updatedWallet = await creditWallet(organizerId, ticketAmount);
+				
+			
+
+			}
+		} catch (walletError) {
+			// Log wallet error but don't fail the booking
+			console.error("Error crediting wallet:", walletError);
+		}
+
 		return res.status(200).json({
 			message: MESSAGE.put.succ,
 			result: updatedBooking

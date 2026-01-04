@@ -5,6 +5,7 @@ import { MESSAGE } from "../../../../constants/message";
 import { JWT_SECRET } from "../../../../config/config";
 import ProviderModel from "../../../../models/organizer.model";
 import AdminModel from "../../../../models/admin.model";
+import { getOrCreateWallet } from "../../../../services/wallet.service";
 
 export const signUpUser = async (req: Request, res: Response) => {
 	try {
@@ -81,6 +82,14 @@ export const signUpOrganizer = async (req: Request, res: Response) => {
 			type_of_firm,
 			is_verified: false
 		}).save();
+
+		// Auto-create wallet for the new organizer
+		try {
+			await getOrCreateWallet(newUser._id.toString());
+		} catch (walletError) {
+			console.error("Error creating wallet for organizer:", walletError);
+			// Continue with signup even if wallet creation fails
+		}
 
 		const token = jwt.sign({ id: newUser._id }, JWT_SECRET);
 

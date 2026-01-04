@@ -13,5 +13,6 @@ app.use("/bookings", require("./bookings/bookings.routes"));
 app.use("/notifications", require("./notification/notification.routes"));
 app.use("/transaction", require("./transaction/transaction.routes"));
 app.use("/user", require("./user/user.routes"));
+app.use("/wallet", require("./wallet/wallet.routes"));
 
 module.exports = app;

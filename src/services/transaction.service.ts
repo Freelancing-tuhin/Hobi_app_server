@@ -7,7 +7,7 @@ import { ITransaction } from "../types/interface/transcation.interface";
  */
 
 export interface CreateTransactionParams {
-	type: "credit" | "debit" | "transfer" | "bill_payment" | "booking";
+	type: "credit" | "debit" | "transfer" | "bill_payment" | "booking" | "wallet_credit" | "wallet_debit";
 	amount: any;
 	senderId: string;
 	receiverId?: string;
@@ -15,6 +15,9 @@ export interface CreateTransactionParams {
 	platformFee?: any;
 	orderId?: string;
 	razorPay_payment_id?: string;
+	walletId?: string;
+	bookingId?: string;
+	withdrawalStatus?: "pending" | "completed" | "failed" | null;
 }
 
 /**
@@ -32,7 +35,10 @@ export const createTransaction = async (params: CreateTransactionParams): Promis
 			reference: params.reference || null,
 			platformFee: params.platformFee || null,
 			orderId: params.orderId || null,
-			razorPay_payment_id: params.razorPay_payment_id || null
+			razorPay_payment_id: params.razorPay_payment_id || null,
+			walletId: params.walletId || null,
+			bookingId: params.bookingId || null,
+			withdrawalStatus: params.withdrawalStatus || null
 		});
 
 		const savedTransaction = await transaction.save();
