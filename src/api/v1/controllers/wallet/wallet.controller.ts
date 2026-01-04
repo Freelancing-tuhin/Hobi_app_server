@@ -3,10 +3,12 @@ import { MESSAGE } from "../../../../constants/message";
 import { 
 	getOrCreateWallet, 
 	getWalletByOrganizerId, 
-	addPendingWithdrawal 
+	addPendingWithdrawal,
+	completePendingWithdrawal
 } from "../../../../services/wallet.service";
 import { createTransaction } from "../../../../services/transaction.service";
 import TransactionModel from "../../../../models/transaction.model";
+import WalletModel from "../../../../models/wallet.model";
 
 /**
  * Get wallet details for an organizer
@@ -153,6 +155,176 @@ export const getWalletTransactions = async (req: Request, res: Response) => {
 		console.error(error);
 		return res.status(400).json({
 			message: MESSAGE.get.fail,
+			error
+		});
+	}
+};
+
+/**
+ * Admin: Get all pending withdrawals
+ */
+export const getPendingWithdrawals = async (req: Request, res: Response) => {
+	try {
+		const { page = 1, limit = 20 } = req.query;
+
+		const pageNumber = parseInt(page as string) || 1;
+		const limitNumber = parseInt(limit as string) || 20;
+		const skip = (pageNumber - 1) * limitNumber;
+
+		// Get all pending withdrawal transactions
+		const pendingWithdrawals = await TransactionModel.find({
+			type: "wallet_debit",
+			withdrawalStatus: "pending"
+		})
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(limitNumber)
+			.lean();
+
+		const totalPending = await TransactionModel.countDocuments({
+			type: "wallet_debit",
+			withdrawalStatus: "pending"
+		});
+
+		const totalPages = Math.ceil(totalPending / limitNumber);
+
+		return res.status(200).json({
+			message: MESSAGE.get.succ,
+			result: pendingWithdrawals,
+			pagination: {
+				totalPending,
+				totalPages,
+				currentPage: pageNumber,
+				limit: limitNumber
+			}
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: MESSAGE.get.fail,
+			error
+		});
+	}
+};
+
+/**
+ * Admin: Complete/Approve a pending withdrawal
+ * This marks the withdrawal as complete after manual bank transfer
+ */
+export const completeWithdrawal = async (req: Request, res: Response) => {
+	try {
+		const { transactionId, bankTransferReference } = req.body;
+
+		if (!transactionId) {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Transaction ID is required")
+			});
+		}
+
+		// Find the pending withdrawal transaction
+		const transaction: any = await TransactionModel.findById(transactionId);
+		if (!transaction) {
+			return res.status(404).json({
+				message: MESSAGE.put.custom("Transaction not found")
+			});
+		}
+
+		if (transaction.type !== "wallet_debit" || transaction.withdrawalStatus !== "pending") {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("This transaction is not a pending withdrawal")
+			});
+		}
+
+		// Get the organizer's wallet and complete the pending withdrawal
+		const organizerId = transaction.senderId;
+		const amount = transaction.amount;
+
+		// Complete the pending withdrawal (moves from pendingWithdrawals to totalWithdrawals)
+		const updatedWallet = await completePendingWithdrawal(organizerId, amount);
+
+		// Update transaction status to completed
+		transaction.withdrawalStatus = "completed";
+		transaction.reference = bankTransferReference || transaction.reference;
+		await transaction.save();
+
+		return res.status(200).json({
+			message: MESSAGE.put.succ,
+			result: {
+				transaction: transaction,
+				wallet: updatedWallet
+			}
+		});
+	} catch (error: any) {
+		console.error(error);
+		return res.status(400).json({
+			message: error.message || MESSAGE.put.fail,
+			error
+		});
+	}
+};
+
+/**
+ * Admin: Reject/Cancel a pending withdrawal
+ */
+export const rejectWithdrawal = async (req: Request, res: Response) => {
+	try {
+		const { transactionId, reason } = req.body;
+
+		if (!transactionId) {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Transaction ID is required")
+			});
+		}
+
+		// Find the pending withdrawal transaction
+		const transaction: any = await TransactionModel.findById(transactionId);
+		if (!transaction) {
+			return res.status(404).json({
+				message: MESSAGE.put.custom("Transaction not found")
+			});
+		}
+
+		if (transaction.type !== "wallet_debit" || transaction.withdrawalStatus !== "pending") {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("This transaction is not a pending withdrawal")
+			});
+		}
+
+		// Refund the amount back to the wallet
+		const organizerId = transaction.senderId;
+		const amount = transaction.amount;
+
+		// Update wallet: move from pendingWithdrawals back to balance
+		const wallet = await WalletModel.findOneAndUpdate(
+			{ organizerId },
+			{
+				$inc: {
+					pendingWithdrawals: -amount,
+					balance: amount
+				},
+				$set: {
+					lastTransactionAt: new Date()
+				}
+			},
+			{ new: true }
+		);
+
+		// Update transaction status to failed
+		transaction.withdrawalStatus = "failed";
+		transaction.reference = reason ? `REJECTED: ${reason}` : "REJECTED";
+		await transaction.save();
+
+		return res.status(200).json({
+			message: MESSAGE.put.succ,
+			result: {
+				transaction: transaction,
+				wallet: wallet
+			}
+		});
+	} catch (error: any) {
+		console.error(error);
+		return res.status(400).json({
+			message: error.message || MESSAGE.put.fail,
 			error
 		});
 	}
