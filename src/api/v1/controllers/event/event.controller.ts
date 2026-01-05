@@ -225,7 +225,7 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 		console.log("Fetching upcoming events. Current time:", currentDateTime);
 
 		// Extract pagination and filter parameters
-		const { search, page = "1", limit = "10", category, type, organizerId, isTicketed, verified, ...otherFilters } = req.query;
+		const { search, page = "1", limit = "10", category, type, organizerId, isTicketed, ...otherFilters } = req.query;
 
 		const pageNum = parseInt(page as string, 10) || 1;
 		const limitNum = parseInt(limit as string, 10) || 10;
@@ -259,11 +259,6 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 			queryFilters.isTicketed = isTicketed === "true";
 		}
 
-		// Filter by verified status
-		if (verified !== undefined) {
-			queryFilters.verified = verified === "true";
-		}
-
 		// Add any other dynamic filters
 		Object.keys(otherFilters).forEach((key) => {
 			if (otherFilters[key]) {
@@ -278,9 +273,13 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 			.populate("organizerId", "full_name email profile_pic")
 			.populate("category", "service_name");
 
+		console.log("Total events fetched from DB:", events.length);
+		console.log("Events fetched:", events.map(e => ({ id: e._id, title: e.title, startDate: e.startDate, startTime: e.startTime })));
+
 		// Filter only upcoming events
 		const upcomingEvents = events.filter((event) => {
 			const eventDateTime = new Date(`${event.startDate}T${event.startTime}:00`); // Convert to Date object
+			console.log(`Event: ${event.title}, Date: ${event.startDate}, Time: ${event.startTime}, Parsed: ${eventDateTime}, Current: ${currentDateTime}, IsUpcoming: ${eventDateTime > currentDateTime}`);
 			return eventDateTime > currentDateTime; // Ensure it's strictly in the future
 		});
 
