@@ -9,8 +9,8 @@ import { createTransaction } from "../../../../services/transaction.service";
 import { creditWallet } from "../../../../services/wallet.service";
 
 const razorpayInstance = new Razorpay({
-	key_id: "rzp_test_RxwbroJYSpkRhI",
-	key_secret: "gNK42T2F9zVuRSXqGIyZIUUc"
+	key_id: "rzp_live_S0CCKBUG6HaT2e",
+	key_secret: "iClB7NoRd8CdVdEY5y6688s3"
 });
 
 export const createBooking = async (req: Request, res: Response) => {
