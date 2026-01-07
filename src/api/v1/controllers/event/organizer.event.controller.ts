@@ -92,7 +92,10 @@ export const getBookingsByEvent = async (req: Request, res: Response) => {
 
 		const bookings = await BookingModel.aggregate([
 			{
-				$match: { eventId: new mongoose.Types.ObjectId(eventId) }
+				$match: { 
+					eventId: new mongoose.Types.ObjectId(eventId),
+					paymentStatus: "Completed"
+				}
 			},
 			{
 				$lookup: {
