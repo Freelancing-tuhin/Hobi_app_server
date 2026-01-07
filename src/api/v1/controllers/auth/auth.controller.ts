@@ -9,7 +9,7 @@ import { getOrCreateWallet } from "../../../../services/wallet.service";
 
 export const signUpUser = async (req: Request, res: Response) => {
 	try {
-		const { full_name, age, email, gender, address, password } = req.body;
+		const { full_name, age, email, gender, address, password, phone } = req.body;
 
 		const newUser = await new UserModel({
 			full_name,
@@ -17,7 +17,8 @@ export const signUpUser = async (req: Request, res: Response) => {
 			email,
 			gender,
 			address,
-			password
+			password,
+			phone
 		}).save();
 
 		const token = jwt.sign({ id: newUser._id }, JWT_SECRET);
@@ -63,6 +64,37 @@ export const loginUser = async (req: any, res: Response) => {
 		});
 	}
 };
+
+
+export const AnonimusLogin = async (req: any, res: Response) => {
+	try {
+		const {email,phone, password} = req.body;
+ 
+		const userInstance:any = await UserModel.findOne({email});
+ 
+		const token = jwt.sign({ id: userInstance._id }, JWT_SECRET);
+
+		if(password === userInstance.password){
+			return res.status(200).json({
+				message: MESSAGE.post.succ,
+				token,
+				result: userInstance
+			});
+		}else{
+			return res.status(400).json({
+				message: MESSAGE.post.fail,
+				error: "Invalid password"
+			});
+		}
+	} catch (error) {
+		console.error("Error during login:", error);
+		return res.status(400).json({
+			message: MESSAGE.post.fail,
+			error: error
+		});
+	}
+};
+
 
 export const signUpOrganizer = async (req: Request, res: Response) => {
 	try {

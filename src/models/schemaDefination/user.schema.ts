@@ -9,6 +9,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
 		age: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
 		email: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		gender: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		phone: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		address: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		password: SCHEMA_DEFINITION_PROPERTY.optionalNullString
 	},
