@@ -4,7 +4,7 @@ import path from "path";
 // Load environment variables from the src folder
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
-export const NODE_ENV: "PROD" | "DEV" | "LOCAL" = "LOCAL";
+export const NODE_ENV: "PROD" | "DEV" | "LOCAL" = "PROD";
 export const JWT_SECRET = "xnova2023";
 
 // MSG91 Configuration
