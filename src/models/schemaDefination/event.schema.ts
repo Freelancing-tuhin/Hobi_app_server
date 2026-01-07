@@ -50,6 +50,24 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 		supportingImages: {
 			type: [String],
 			default: []
+		},
+		inclusions: {
+			type: [
+				{
+					id: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+					text: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+				}
+			],
+			default: []
+		},
+		exclusions: {
+			type: [
+				{
+					id: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+					text: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+				}
+			],
+			default: []
 		}
 	},
 	GENERAL_SCHEMA_OPTIONS

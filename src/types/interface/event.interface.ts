@@ -1,3 +1,13 @@
+export interface IInclusionItem {
+	id: string;
+	text: string;
+}
+
+export interface IExclusionItem {
+	id: string;
+	text: string;
+}
+
 export interface IEvent {
 	organizerId: any;
 	title: string;
@@ -20,4 +30,6 @@ export interface IEvent {
 
 	verified: boolean;
 	supportingImages?: string[];
+	inclusions?: IInclusionItem[];
+	exclusions?: IExclusionItem[];
 }
