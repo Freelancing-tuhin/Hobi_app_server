@@ -15,14 +15,6 @@ export const getOtp = async (req: Request, res: Response) => {
 			});
 		}
 
-		// Validate phone number format
-		const phoneRegex = /^(\+91|91)?[6-9]\d{9}$/;
-		if (!phoneRegex.test(phone.replace(/\s+/g, ""))) {
-			return res.status(400).json({
-				message: "Invalid phone number format",
-				error: "Please provide a valid Indian phone number"
-			});
-		}
 
 		const response = await generateOtp(phone);
 		console.log("===>OTP Generation Response", response?.otp);
