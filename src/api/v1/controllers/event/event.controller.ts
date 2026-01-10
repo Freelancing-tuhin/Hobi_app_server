@@ -31,9 +31,9 @@ export const createEvent = async (req: Request, res: Response) => {
 		let tickets: any = [];
 		if (eventDetails.tickets) {
 			try {
-				const parsedTickets = JSON.parse(eventDetails.tickets); // Ensure it's an array
+				const parsedTickets = typeof eventDetails.tickets === "string" ? JSON.parse(eventDetails.tickets) : eventDetails.tickets;
 				if (Array.isArray(parsedTickets)) {
-					tickets = parsedTickets.map((ticket) => ({
+					tickets = parsedTickets.map((ticket: any) => ({
 						ticketName: ticket.ticketName || null,
 						ticketPrice: ticket.ticketPrice || 0,
 						quantity: ticket.quantity || 0
@@ -43,6 +43,55 @@ export const createEvent = async (req: Request, res: Response) => {
 				return res.status(400).json({
 					message: "Invalid tickets format, must be a valid JSON array"
 				});
+			}
+		}
+
+		// Parse inclusions array safely
+		let inclusions: any = [];
+		if (eventDetails.inclusions) {
+			try {
+				const parsedInclusions = typeof eventDetails.inclusions === "string" ? JSON.parse(eventDetails.inclusions) : eventDetails.inclusions;
+				if (Array.isArray(parsedInclusions)) {
+					inclusions = parsedInclusions.map((item: any) => (typeof item === "string" ? { text: item } : item));
+				}
+			} catch (error) {
+				console.error("Error parsing inclusions:", error);
+			}
+		}
+
+		// Parse exclusions array safely
+		let exclusions: any = [];
+		if (eventDetails.exclusions) {
+			try {
+				const parsedExclusions = typeof eventDetails.exclusions === "string" ? JSON.parse(eventDetails.exclusions) : eventDetails.exclusions;
+				if (Array.isArray(parsedExclusions)) {
+					exclusions = parsedExclusions.map((item: any) => (typeof item === "string" ? { text: item } : item));
+				}
+			} catch (error) {
+				console.error("Error parsing exclusions:", error);
+			}
+		}
+
+		// Parse supportingImages array safely
+		let supportingImages: any = [];
+		if (eventDetails.supportingImages) {
+			try {
+				const parsedSupportingImages = typeof eventDetails.supportingImages === "string" ? JSON.parse(eventDetails.supportingImages) : eventDetails.supportingImages;
+				if (Array.isArray(parsedSupportingImages)) {
+					supportingImages = parsedSupportingImages;
+				}
+			} catch (error) {
+				console.error("Error parsing supportingImages:", error);
+			}
+		}
+
+		// Parse location safely
+		let location: any = eventDetails.location;
+		if (typeof location === "string") {
+			try {
+				location = JSON.parse(location);
+			} catch (error) {
+				console.error("Error parsing location:", error);
 			}
 		}
 
@@ -81,6 +130,10 @@ export const createEvent = async (req: Request, res: Response) => {
 				verified: false,
 				banner_Image: banner_Image_Url,
 				tickets,
+				inclusions,
+				exclusions,
+				supportingImages,
+				location,
 				startDate: eventDate // Override with the current date in loop
 			};
 
@@ -136,6 +189,63 @@ export const editEvent = async (req: Request, res: Response) => {
 
 		console.log("Updating event with ID:", eventId);
 		console.log("Update details:", eventDetails);
+
+		// Parse complex fields for edit
+		if (eventDetails.tickets) {
+			try {
+				const parsed = typeof eventDetails.tickets === "string" ? JSON.parse(eventDetails.tickets) : eventDetails.tickets;
+				if (Array.isArray(parsed)) {
+					eventDetails.tickets = parsed.map((ticket: any) => ({
+						ticketName: ticket.ticketName || null,
+						ticketPrice: ticket.ticketPrice || 0,
+						quantity: ticket.quantity || 0
+					}));
+				}
+			} catch (e) {
+				console.error("Error parsing tickets in edit:", e);
+			}
+		}
+
+		if (eventDetails.inclusions) {
+			try {
+				const parsed = typeof eventDetails.inclusions === "string" ? JSON.parse(eventDetails.inclusions) : eventDetails.inclusions;
+				if (Array.isArray(parsed)) {
+					eventDetails.inclusions = parsed.map((item: any) => (typeof item === "string" ? { text: item } : item));
+				}
+			} catch (e) {
+				console.error("Error parsing inclusions in edit:", e);
+			}
+		}
+
+		if (eventDetails.exclusions) {
+			try {
+				const parsed = typeof eventDetails.exclusions === "string" ? JSON.parse(eventDetails.exclusions) : eventDetails.exclusions;
+				if (Array.isArray(parsed)) {
+					eventDetails.exclusions = parsed.map((item: any) => (typeof item === "string" ? { text: item } : item));
+				}
+			} catch (e) {
+				console.error("Error parsing exclusions in edit:", e);
+			}
+		}
+
+		if (eventDetails.supportingImages) {
+			try {
+				const parsed = typeof eventDetails.supportingImages === "string" ? JSON.parse(eventDetails.supportingImages) : eventDetails.supportingImages;
+				if (Array.isArray(parsed)) {
+					eventDetails.supportingImages = parsed;
+				}
+			} catch (e) {
+				console.error("Error parsing supportingImages in edit:", e);
+			}
+		}
+
+		if (eventDetails.location && typeof eventDetails.location === "string") {
+			try {
+				eventDetails.location = JSON.parse(eventDetails.location);
+			} catch (e) {
+				console.error("Error parsing location in edit:", e);
+			}
+		}
 
 		// Update event details (excluding banner image)
 		const updatedEvent = await EventModel.findByIdAndUpdate(eventId, eventDetails, {
