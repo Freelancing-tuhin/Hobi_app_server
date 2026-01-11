@@ -332,7 +332,7 @@ export const updateEventBanner = async (req: Request, res: Response) => {
 export const getUpcomingEvents = async (req: Request, res: Response) => {
 	try {
 		const currentDateTime = new Date(); // Get current date & time
-		console.log("Fetching upcoming events. Current time:", currentDateTime);
+		// console.log("Fetching upcoming events. Current time:", currentDateTime);
 
 		// Extract pagination and filter parameters
 		const { search, page = "1", limit = "10", category, type, organizerId, isTicketed, ...otherFilters } = req.query;

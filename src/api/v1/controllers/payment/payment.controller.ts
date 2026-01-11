@@ -3,10 +3,11 @@ import ProviderModel from "../../../../models/organizer.model";
 import axios from "axios";
 import { createHmac } from "crypto";
 import Razorpay from "razorpay";
+import { RAZORPAY_CONFIG } from "../../../../config/config";
 
 export const createOrder = async (req: Request, res: Response) => {
 	try {
-		const instance = new Razorpay({ key_id: "rzp_live_S0CCKBUG6HaT2e", key_secret: "iClB7NoRd8CdVdEY5y6688s3" });
+		const instance = new Razorpay({ key_id: RAZORPAY_CONFIG.KEY_ID, key_secret: RAZORPAY_CONFIG.KEY_SECRET });
 		const { amount, currency, receipt } = req.body;
 
 		const response = await instance.orders.create({
@@ -35,7 +36,7 @@ export const verifyOrder = async (req: Request, res: Response) => {
 		}
 
 		// Create the expected signature using HMAC-SHA256
-		const generatedSignature = createHmac("sha256", "ZpwuC7sSd9rer6BJLvY3HId9")
+		const generatedSignature = createHmac("sha256", RAZORPAY_CONFIG.KEY_SECRET)
 			.update(`${razorpay_order_id}|${razorpay_payment_id}`)
 			.digest("hex");
 

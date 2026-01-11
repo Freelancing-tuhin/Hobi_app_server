@@ -7,10 +7,13 @@ import Razorpay from "razorpay";
 import { calculatePlatformFee } from "../../../../services/platformFee";
 import { createTransaction } from "../../../../services/transaction.service";
 import { creditWallet } from "../../../../services/wallet.service";
+import UserModel from "../../../../models/user.model";
+import { sendBookingConfirmationSms } from "../../../../services/sms/sms.service";
+import { RAZORPAY_CONFIG } from "../../../../config/config";
 
 const razorpayInstance = new Razorpay({
-	key_id: "rzp_live_S0CCKBUG6HaT2e",
-	key_secret: "iClB7NoRd8CdVdEY5y6688s3"
+	key_id: RAZORPAY_CONFIG.KEY_ID,
+	key_secret: RAZORPAY_CONFIG.KEY_SECRET
 });
 
 export const createBooking = async (req: Request, res: Response) => {
@@ -99,6 +102,7 @@ export const createBooking = async (req: Request, res: Response) => {
 
 
 export const updateBooking = async (req: Request, res: Response) => {
+	console.log("===>updateBooking")
 	try {
 		const { bookingId, transactionId ,platformfee} = req.body;
 
@@ -166,6 +170,17 @@ export const updateBooking = async (req: Request, res: Response) => {
 			// Log wallet error but don't fail the booking
 			console.error("Error crediting wallet:", walletError);
 		}
+
+		// Send confirmation SMS to user
+		try {
+			const user = await UserModel.findById(booking.userId);
+			if (user && user.phone) {
+				await sendBookingConfirmationSms(user.phone, booking._id.toString());
+			}
+		} catch (smsError) {
+			console.error("Error sending confirmation SMS:", smsError);
+		}
+
 
 		return res.status(200).json({
 			message: MESSAGE.put.succ,
