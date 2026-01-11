@@ -16,10 +16,11 @@ interface SMSResponse {
 /**
  * Send booking confirmation SMS using MSG91 Flow API
  * @param phone_no - Target phone number
- * @param bookingId - Booking ID to be sent as variable
+ * @param eventName - Name of the event to be sent as variable
  * @returns Promise with response
  */
-export const sendBookingConfirmationSms = async (phone_no: string, bookingId: string): Promise<SMSResponse> => {
+export const sendBookingConfirmationSms = async (phone_no: string, eventName: string): Promise<SMSResponse> => {
+
 	// Format phone number - remove any special characters except +
 	let formattedPhoneNo = phone_no.replace(/[^\d+]/g, "");
 
@@ -40,7 +41,7 @@ export const sendBookingConfirmationSms = async (phone_no: string, bookingId: st
 				{
 					mobiles: formattedPhoneNo,
 					var: phone_no,
-					var2: bookingId
+					var2: eventName + " Event"
 				}
 			]
 		};

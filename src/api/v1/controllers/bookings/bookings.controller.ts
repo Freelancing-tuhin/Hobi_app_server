@@ -173,9 +173,14 @@ export const updateBooking = async (req: Request, res: Response) => {
 
 		// Send confirmation SMS to user
 		try {
-			const user = await UserModel.findById(booking.userId);
+			const [user, event]: any = await Promise.all([
+				UserModel.findById(booking.userId),
+				EventModel.findById(booking.eventId)
+			]);
+
 			if (user && user.phone) {
-				await sendBookingConfirmationSms(user.phone, booking._id.toString());
+				const eventName = event?.title || "Event";
+				await sendBookingConfirmationSms(user.phone, eventName);
 			}
 		} catch (smsError) {
 			console.error("Error sending confirmation SMS:", smsError);
