@@ -219,7 +219,7 @@ export const getUserBookings = async (req: any, res: Response) => {
 export const updateUserDetails = async (req: any, res: Response) => {
 	try {
 		// Get userId from JWT token or query params
-		const userId = req.user?.id || req.query.userId;
+		const userId = req.query.userId;
 		const userData = req.body;
 
 		if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {

@@ -23,7 +23,7 @@ router.get("/profile-with-bookings", getUserWithBookings);
 router.get("/bookings", jwtAuthMiddleware, getUserBookings);
 
 // Update user profile details
-router.patch("/update-profile", jwtAuthMiddleware, updateUserDetails);
+router.patch("/update-profile", updateUserDetails);
 
 // Update user password
 router.patch("/update-password", jwtAuthMiddleware, updateUserPassword);
