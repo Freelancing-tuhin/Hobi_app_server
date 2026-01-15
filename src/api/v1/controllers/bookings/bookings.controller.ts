@@ -69,7 +69,7 @@ export const createBooking = async (req: Request, res: Response) => {
 		// Process payment
 		const amount = ticket.ticketPrice * ticketsCount;
 		const response = await razorpayInstance.orders.create({
-			amount: (amount + calculatePlatformFee(ticket.ticketPrice)) * 100,
+			amount: (amount + (calculatePlatformFee(amount))) * 100,
 			currency: "INR",
 			receipt: receipt
 		});
@@ -477,7 +477,7 @@ export const createMultipleBookings = async (req: Request, res: Response) => {
 			}
 
 			const amount = ticket.ticketPrice * ticketsCount;
-			const platformFee = calculatePlatformFee(ticket.ticketPrice);
+			const platformFee = calculatePlatformFee(amount);
 			
 			totalAmountToRazorpay += (amount + platformFee);
 
