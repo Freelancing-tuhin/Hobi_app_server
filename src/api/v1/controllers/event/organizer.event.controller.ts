@@ -92,7 +92,7 @@ export const getBookingsByEvent = async (req: Request, res: Response) => {
 
 		const bookings = await BookingModel.aggregate([
 			{
-				$match: { 
+				$match: {
 					eventId: new mongoose.Types.ObjectId(eventId),
 					paymentStatus: "Completed"
 				}
@@ -109,16 +109,45 @@ export const getBookingsByEvent = async (req: Request, res: Response) => {
 				$unwind: "$userDetails"
 			},
 			{
+				$lookup: {
+					from: "events",
+					localField: "eventId",
+					foreignField: "_id",
+					as: "eventDetails"
+				}
+			},
+			{
+				$unwind: "$eventDetails"
+			},
+			{
+				$addFields: {
+					ticketDetails: {
+						$arrayElemAt: [
+							{
+								$filter: {
+									input: "$eventDetails.tickets",
+									as: "ticket",
+									cond: { $eq: ["$$ticket._id", "$ticketId"] }
+								}
+							},
+							0
+						]
+					}
+				}
+			},
+			{
 				$project: {
 					_id: 1,
 					userId: "$userId",
 					eventId: "$eventId",
+					ticketId: "$ticketId",
+					ticketsCount: "$ticketsCount",
 					amountPaid: "$amountPaid",
 					bookingDate: "$createdAt",
 					bookingStatus: "$booking_status",
-					ticketName: "$ticketName",
 					bookingId: "$_id",
-					userDetails: "$userDetails"
+					userDetails: "$userDetails",
+					ticketDetails: "$ticketDetails"
 				}
 			}
 		]);
