@@ -196,6 +196,8 @@ export const editEvent = async (req: Request, res: Response) => {
 				const parsed = typeof eventDetails.tickets === "string" ? JSON.parse(eventDetails.tickets) : eventDetails.tickets;
 				if (Array.isArray(parsed)) {
 					eventDetails.tickets = parsed.map((ticket: any) => ({
+						// IMPORTANT: Preserve existing _id to maintain booking references
+						...(ticket._id && { _id: ticket._id }),
 						ticketName: ticket.ticketName || null,
 						ticketPrice: ticket.ticketPrice || 0,
 						quantity: ticket.quantity || 0

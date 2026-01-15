@@ -122,16 +122,23 @@ export const getBookingsByEvent = async (req: Request, res: Response) => {
 			{
 				$addFields: {
 					ticketDetails: {
-						$arrayElemAt: [
-							{
-								$filter: {
-									input: "$eventDetails.tickets",
-									as: "ticket",
-									cond: { $eq: ["$$ticket._id", "$ticketId"] }
-								}
+						$let: {
+							vars: {
+								bookingTicketId: { $toString: "$ticketId" }
 							},
-							0
-						]
+							in: {
+								$arrayElemAt: [
+									{
+										$filter: {
+											input: "$eventDetails.tickets",
+											as: "ticket",
+											cond: { $eq: [{ $toString: "$$ticket._id" }, "$$bookingTicketId"] }
+										}
+									},
+									0
+								]
+							}
+						}
 					}
 				}
 			},
