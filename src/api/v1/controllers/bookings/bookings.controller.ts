@@ -414,3 +414,206 @@ export const cancelBooking = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+export const createMultipleBookings = async (req: Request, res: Response) => {
+	try {
+		const { userId, items, receipt } = req.body;
+
+		if (!userId || !items || !Array.isArray(items) || items.length === 0) {
+			return res.status(400).json({
+				message: MESSAGE.post.custom("User ID and a non-empty items array are required")
+			});
+		}
+
+		let totalAmountToRazorpay = 0;
+		const bookingsToCreate = [];
+
+		for (const item of items) {
+			const { eventId, ticketId, ticketsCount } = item;
+
+			if (!eventId || !ticketId || !ticketsCount) {
+				return res.status(400).json({
+					message: MESSAGE.post.custom("Event ID, Ticket ID, and Tickets Count are required for each item")
+				});
+			}
+
+			const event = await EventModel.findById(eventId);
+			if (!event) {
+				return res.status(404).json({
+					message: MESSAGE.post.custom(`Event not found for ID: ${eventId}`)
+				});
+			}
+
+			const ticket = event.tickets.find((t: any) => t._id.toString() === ticketId);
+			if (!ticket) {
+				return res.status(400).json({
+					message: MESSAGE.post.custom(`Invalid Ticket ID: ${ticketId} for event: ${eventId}`)
+				});
+			}
+
+			// Check availability
+			const totalBookedTickets = await BookingModel.aggregate([
+				{
+					$match: {
+						eventId: new mongoose.Types.ObjectId(eventId),
+						ticketId: new mongoose.Types.ObjectId(ticketId),
+						transactionId: { $ne: null }
+					}
+				},
+				{
+					$group: {
+						_id: null,
+						totalBooked: { $sum: "$ticketsCount" }
+					}
+				}
+			]);
+
+			const bookedCount = totalBookedTickets.length > 0 ? totalBookedTickets[0].totalBooked : 0;
+
+			if (bookedCount + ticketsCount > ticket.quantity) {
+				return res.status(400).json({
+					message: MESSAGE.post.custom(`Not enough tickets available for ${ticket.ticketTitle || 'selected ticket'}`)
+				});
+			}
+
+			const amount = ticket.ticketPrice * ticketsCount;
+			const platformFee = calculatePlatformFee(ticket.ticketPrice);
+			
+			totalAmountToRazorpay += (amount + platformFee);
+
+			bookingsToCreate.push({
+				userId,
+				eventId,
+				ticketId,
+				amountPaid: 0,
+				ticketsCount,
+				transactionId: null,
+				paymentStatus: "Pending"
+			});
+		}
+
+		// Process payment with Razorpay
+		const response = await razorpayInstance.orders.create({
+			amount: Math.round(totalAmountToRazorpay * 100),
+			currency: "INR",
+			receipt: receipt
+		});
+
+		// Save all bookings with the orderId
+		const createdBookings = await BookingModel.insertMany(
+			bookingsToCreate.map(b => ({ ...b, orderId: response.id }))
+		);
+
+		return res.status(200).json({
+			message: MESSAGE.post.succ,
+			result: createdBookings,
+			payment: response
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: MESSAGE.post.fail,
+			error
+		});
+	}
+};
+
+export const updateMultipleBookings = async (req: Request, res: Response) => {
+	try {
+		const { transactionId, updates } = req.body; // updates: Array<{ bookingId, platformfee }>
+
+		if (!transactionId || !updates || !Array.isArray(updates)) {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Transaction ID and updates array are required")
+			});
+		}
+
+		// Verify Payment from Razorpay
+		const payment: any = await razorpayInstance.payments.fetch(transactionId);
+		if (!payment) {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Invalid transaction ID or payment not found")
+			});
+		}
+
+		if (payment.status !== "captured") {
+			return res.status(400).json({
+				message: MESSAGE.put.custom("Payment verification failed. Payment not captured."),
+				paymentStatus: payment.status
+			});
+		}
+
+		const results = [];
+
+		for (const update of updates) {
+			const { bookingId, platformfee } = update;
+			
+			const booking: any = await BookingModel.findById(bookingId);
+			if (!booking) continue;
+
+			if (booking.paymentStatus === "Completed") {
+				results.push(booking);
+				continue;
+			}
+
+			const event: any = await EventModel.findById(booking.eventId);
+			const ticket = event?.tickets.find((t: any) => t._id.toString() === booking.ticketId.toString());
+			
+			if (!ticket) continue;
+
+			const ticketAmount = ticket.ticketPrice * booking.ticketsCount;
+
+			// Create booking transaction
+			const transaction: any = await createTransaction({
+				type: "booking",
+				amount: ticketAmount,
+				senderId: booking.userId,
+				receiverId: booking.eventId,
+				reference: booking.receipt || payment.receipt,
+				platformFee: platformfee * booking?.ticketsCount,
+				orderId: payment.order_id,
+				razorPay_payment_id: transactionId,
+				bookingId: bookingId
+			});
+
+			// Update booking details
+			booking.amountPaid = ticketAmount;
+			booking.transactionId = transaction?._id;
+			booking.paymentStatus = "Completed";
+			booking.booking_status = "Pending";
+
+			const updatedBooking = await booking.save();
+			results.push(updatedBooking);
+
+			// Credit organizer
+			try {
+				if (event && event.organizerId) {
+					await creditWallet(event.organizerId.toString(), ticketAmount);
+				}
+			} catch (walletError) {
+				console.error("Error crediting wallet:", walletError);
+			}
+
+			// Send SMS
+			try {
+				const user: any = await UserModel.findById(booking.userId);
+				if (user && user.phone) {
+					await sendBookingConfirmationSms(user.phone, event.title || "Event");
+				}
+			} catch (smsError) {
+				console.error("Error sending confirmation SMS:", smsError);
+			}
+		}
+
+		return res.status(200).json({
+			message: MESSAGE.put.succ,
+			result: results
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({
+			message: MESSAGE.put.fail,
+			error
+		});
+	}
+};

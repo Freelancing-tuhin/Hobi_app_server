@@ -4,14 +4,18 @@ import {
 	getOrganizerBookings,
 	refundBooking,
 	updateBooking,
-	updateBookingStatus
+	updateBookingStatus,
+	createMultipleBookings,
+	updateMultipleBookings
 } from "../../controllers/bookings/bookings.controller";
 
 const router = Router();
 
 router.post("/create-booking", createBooking);
+router.post("/create-multiple-bookings", createMultipleBookings);
 
 router.patch("/confirm-booking", updateBooking);
+router.patch("/confirm-multiple-bookings", updateMultipleBookings);
 
 router.patch("/refund-booking-bookings", refundBooking);
 
