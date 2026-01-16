@@ -42,7 +42,9 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 			{
 				ticketName: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 				ticketPrice: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
-				quantity: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber
+				quantity: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+				gst_amount: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+				
 			}
 		],
 		verified: SCHEMA_DEFINITION_PROPERTY.optionalBoolean,

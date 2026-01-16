@@ -36,7 +36,8 @@ export const createEvent = async (req: Request, res: Response) => {
 					tickets = parsedTickets.map((ticket: any) => ({
 						ticketName: ticket.ticketName || null,
 						ticketPrice: ticket.ticketPrice || 0,
-						quantity: ticket.quantity || 0
+						quantity: ticket.quantity || 0,
+						gst_amount: ticket.gst_amount || 0
 					}));
 				}
 			} catch (error) {
@@ -200,7 +201,8 @@ export const editEvent = async (req: Request, res: Response) => {
 						...(ticket._id && { _id: ticket._id }),
 						ticketName: ticket.ticketName || null,
 						ticketPrice: ticket.ticketPrice || 0,
-						quantity: ticket.quantity || 0
+						quantity: ticket.quantity || 0,
+						gst_amount: ticket.gst_amount || 0
 					}));
 				}
 			} catch (e) {

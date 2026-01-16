@@ -38,7 +38,7 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 		// Calculate ticket availability
 		const ticket_availability =
 			event.tickets?.map(
-				(ticket: { _id: { toString: () => string }; ticketName: any; ticketPrice: any; quantity: number }) => {
+				(ticket: { _id: { toString: () => string }; ticketName: any; ticketPrice: any; quantity: number; gst_amount: number }) => {
 					const bookedTickets = bookings
 						.filter(
 							(booking: { ticketId: { toString: () => string }; transactionId?: string }) =>
@@ -51,6 +51,7 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 						ticketName: ticket.ticketName,
 						ticketPrice: ticket.ticketPrice,
 						totalQuantity: ticket.quantity,
+						gst_amount: ticket.gst_amount,
 						available: ticket.quantity - bookedTickets, // Remaining tickets
 						platformFee: calculatePlatformFee(ticket.ticketPrice) // Platform fee based on ticket price
 					};

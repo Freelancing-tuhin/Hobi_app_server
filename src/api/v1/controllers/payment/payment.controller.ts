@@ -11,7 +11,7 @@ export const createOrder = async (req: Request, res: Response) => {
 		const { amount, currency, receipt } = req.body;
 
 		const response = await instance.orders.create({
-			amount: amount * 100,
+			amount: Math.round(amount * 100),
 			currency: "INR",
 			receipt: receipt,
 			notes: {

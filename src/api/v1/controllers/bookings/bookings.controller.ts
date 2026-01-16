@@ -69,7 +69,7 @@ export const createBooking = async (req: Request, res: Response) => {
 		// Process payment
 		const amount = ticket.ticketPrice * ticketsCount;
 		const response = await razorpayInstance.orders.create({
-			amount: (amount + (calculatePlatformFee(amount))) * 100,
+			amount: Math.round((amount + calculatePlatformFee(amount)) * 100),
 			currency: "INR",
 			receipt: receipt
 		});
@@ -225,7 +225,7 @@ export const refundBooking = async (req: Request, res: Response) => {
 
 		// Process refund via Razorpay
 		const refundResponse = await razorpayInstance.payments.refund(booking.transactionId, {
-			amount: booking.amountPaid * 100, // Convert to paisa (if needed)
+			amount: Math.round(booking.amountPaid * 100), // Convert to paisa (if needed)
 			speed: "normal" // Use "instant" for an instant refund
 		});
 
