@@ -14,10 +14,10 @@ export const MSG91_CONFIG = {
 	SENDER_ID: "HOBIPL",
 	BASE_URL: "https://control.msg91.com/api/v5",
 	CNF_TEMPLATE_ID: "696261de1d07a862cc117e83",
-	EMAIL_TEMPLATE_ID: process.env.MSG91_EMAIL_TEMPLATE_ID || "6616cf19d6fc05549771acc2",
-	FROM_EMAIL: process.env.MSG91_FROM_EMAIL || "support@hobi.com",
-	FROM_NAME: process.env.MSG91_FROM_NAME || "Hobi Support",
-	DOMAIN: process.env.MSG91_DOMAIN || "hobi.com"
+	EMAIL_TEMPLATE_ID: "booking_confirmation_html",
+	FROM_EMAIL: "hello@hobi.co.in",
+	FROM_NAME: "Hobi",
+	DOMAIN:"notify.hobi.co.in"
 };
 
 // Razorpay Configuration
