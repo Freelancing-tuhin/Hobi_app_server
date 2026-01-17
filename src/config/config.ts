@@ -13,7 +13,11 @@ export const MSG91_CONFIG = {
 	TEMPLATE_ID: "690768d9f9da3c48473908e3",
 	SENDER_ID: "HOBIPL",
 	BASE_URL: "https://control.msg91.com/api/v5",
-	CNF_TEMPLATE_ID: "696261de1d07a862cc117e83"
+	CNF_TEMPLATE_ID: "696261de1d07a862cc117e83",
+	EMAIL_TEMPLATE_ID: process.env.MSG91_EMAIL_TEMPLATE_ID || "6616cf19d6fc05549771acc2",
+	FROM_EMAIL: process.env.MSG91_FROM_EMAIL || "support@hobi.com",
+	FROM_NAME: process.env.MSG91_FROM_NAME || "Hobi Support",
+	DOMAIN: process.env.MSG91_DOMAIN || "hobi.com"
 };
 
 // Razorpay Configuration

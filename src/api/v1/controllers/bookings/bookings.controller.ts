@@ -10,6 +10,7 @@ import { creditWallet } from "../../../../services/wallet.service";
 import UserModel from "../../../../models/user.model";
 import { sendBookingConfirmationSms } from "../../../../services/sms/sms.service";
 import { RAZORPAY_CONFIG } from "../../../../config/config";
+import { sendBookingConfirmationEmail } from "../../../../services/mail/mail.service";
 
 const razorpayInstance = new Razorpay({
 	key_id: RAZORPAY_CONFIG.KEY_ID,
@@ -181,6 +182,11 @@ export const updateBooking = async (req: Request, res: Response) => {
 			if (user && user.phone) {
 				const eventName = event?.title || "Event";
 				await sendBookingConfirmationSms(user.phone, eventName);
+			}
+
+			if (user && user.email) {
+				const eventName = event?.title || "Event";
+				await sendBookingConfirmationEmail(user.email, user.name, eventName, event?._id.toString());
 			}
 		} catch (smsError) {
 			console.error("Error sending confirmation SMS:", smsError);
