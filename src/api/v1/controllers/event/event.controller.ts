@@ -111,34 +111,41 @@ export const createEvent = async (req: Request, res: Response) => {
 			}
 		}
 
-		// Parse routine and subscription pricing
+		// Parse routine and subscription pricing (Routine only)
 		let routine: any = null;
-		if (eventDetails.routine) {
-			try {
-				routine = typeof eventDetails.routine === "string" ? JSON.parse(eventDetails.routine) : eventDetails.routine;
-			} catch (error) {
-				return res.status(400).json({
-					message: "Invalid routine format, must be a valid JSON object"
-				});
-			}
-		}
-
 		let subscriptionPricing: any = null;
-		if (eventDetails.subscriptionPricing) {
-			try {
-				subscriptionPricing = typeof eventDetails.subscriptionPricing === "string"
-					? JSON.parse(eventDetails.subscriptionPricing)
-					: eventDetails.subscriptionPricing;
-			} catch (error) {
-				return res.status(400).json({
-					message: "Invalid subscriptionPricing format, must be a valid JSON object"
-				});
+		let subscriptionCapacity: number | null = null;
+		if (eventDetails.type === "Routine") {
+			if (eventDetails.routine) {
+				try {
+					routine = typeof eventDetails.routine === "string" ? JSON.parse(eventDetails.routine) : eventDetails.routine;
+				} catch (error) {
+					return res.status(400).json({
+						message: "Invalid routine format, must be a valid JSON object"
+					});
+				}
 			}
-		}
 
-		const subscriptionCapacity = eventDetails.subscriptionCapacity
-			? Number(eventDetails.subscriptionCapacity)
-			: null;
+			if (eventDetails.subscriptionPricing) {
+				try {
+					subscriptionPricing = typeof eventDetails.subscriptionPricing === "string"
+						? JSON.parse(eventDetails.subscriptionPricing)
+						: eventDetails.subscriptionPricing;
+				} catch (error) {
+					return res.status(400).json({
+						message: "Invalid subscriptionPricing format, must be a valid JSON object"
+					});
+				}
+			}
+
+			subscriptionCapacity = eventDetails.subscriptionCapacity
+				? Number(eventDetails.subscriptionCapacity)
+				: null;
+		} else {
+			delete eventDetails.routine;
+			delete eventDetails.subscriptionPricing;
+			delete eventDetails.subscriptionCapacity;
+		}
 
 		const formatDate = (date: Date) => {
 			const year = date.getFullYear();
