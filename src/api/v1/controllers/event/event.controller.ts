@@ -111,21 +111,95 @@ export const createEvent = async (req: Request, res: Response) => {
 			}
 		}
 
-		// If no eventDates provided, use startDate from eventDetails as single date
-		if (eventDates.length === 0 && eventDetails.startDate) {
-			eventDates = [eventDetails.startDate];
+		// Parse routine and subscription pricing
+		let routine: any = null;
+		if (eventDetails.routine) {
+			try {
+				routine = typeof eventDetails.routine === "string" ? JSON.parse(eventDetails.routine) : eventDetails.routine;
+			} catch (error) {
+				return res.status(400).json({
+					message: "Invalid routine format, must be a valid JSON object"
+				});
+			}
 		}
 
-		if (eventDates.length === 0) {
-			return res.status(400).json({
-				message: MESSAGE.post.custom("At least one event date is required")
-			});
+		let subscriptionPricing: any = null;
+		if (eventDetails.subscriptionPricing) {
+			try {
+				subscriptionPricing = typeof eventDetails.subscriptionPricing === "string"
+					? JSON.parse(eventDetails.subscriptionPricing)
+					: eventDetails.subscriptionPricing;
+			} catch (error) {
+				return res.status(400).json({
+					message: "Invalid subscriptionPricing format, must be a valid JSON object"
+				});
+			}
 		}
+
+		const subscriptionCapacity = eventDetails.subscriptionCapacity
+			? Number(eventDetails.subscriptionCapacity)
+			: null;
+
+		const formatDate = (date: Date) => {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, "0");
+			const day = String(date.getDate()).padStart(2, "0");
+			return `${year}-${month}-${day}`;
+		};
+
+		const buildWeeklyDates = (startDate: string, endDate: string, daysOfWeek: number[], sessionsPerMonth: number) => {
+			if (!startDate || !endDate || !Array.isArray(daysOfWeek) || daysOfWeek.length === 0) {
+				return [];
+			}
+
+			const dates: string[] = [];
+			const start = new Date(startDate);
+			const end = new Date(endDate);
+			start.setHours(0, 0, 0, 0);
+			end.setHours(23, 59, 59, 999);
+			if (end < start) return [];
+
+			const daySet = new Set(daysOfWeek);
+			const monthCounts: Record<string, number> = {};
+
+			let cursor = new Date(start);
+			let guard = 0;
+			const maxDays = 366 * 3;
+			while (cursor <= end && guard < maxDays) {
+				if (daySet.has(cursor.getDay())) {
+					const monthKey = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`;
+					const currentCount = monthCounts[monthKey] || 0;
+					if (!sessionsPerMonth || currentCount < sessionsPerMonth) {
+						dates.push(formatDate(cursor));
+						monthCounts[monthKey] = currentCount + 1;
+					}
+				}
+				cursor.setDate(cursor.getDate() + 1);
+				guard += 1;
+			}
+
+			return dates;
+		};
+
+		const normalizeCustomDates = (customDates: string[]) => {
+			if (!Array.isArray(customDates)) return [];
+			return [...new Set(customDates)].sort();
+		};
 
 		const createdEvents: any[] = [];
 
-		// Loop through each date and create an event
-		for (const eventDate of eventDates) {
+		if (eventDetails.type === "Routine") {
+			const routineMode = routine?.mode || "Weekly";
+			const generatedDates = routineMode === "Custom"
+				? normalizeCustomDates(routine?.customDates || [])
+				: buildWeeklyDates(routine?.startDate, routine?.endDate, routine?.daysOfWeek || [], routine?.sessionsPerMonth || 0);
+
+			if (!generatedDates.length) {
+				return res.status(400).json({
+					message: MESSAGE.post.custom("Routine schedule requires at least one date")
+				});
+			}
+
 			const payload = {
 				...eventDetails,
 				verified: false,
@@ -135,10 +209,18 @@ export const createEvent = async (req: Request, res: Response) => {
 				exclusions,
 				supportingImages,
 				location,
-				startDate: eventDate // Override with the current date in loop
+				subscriptionPricing,
+				subscriptionCapacity,
+				routine: {
+					...routine,
+					startDate: routine?.startDate || generatedDates[0],
+					endDate: routine?.endDate || generatedDates[generatedDates.length - 1],
+					sessionsPerMonth: routine?.sessionsPerMonth || null,
+					generatedDates
+				},
+				startDate: generatedDates[0]
 			};
 
-			// Remove eventDates from payload as it's not needed in the model
 			delete payload.eventDates;
 
 			const newEvent = await new EventModel(payload).save();
@@ -159,6 +241,54 @@ export const createEvent = async (req: Request, res: Response) => {
 			);
 
 			createdEvents.push(newEvent);
+		} else {
+			// If no eventDates provided, use startDate from eventDetails as single date
+			if (eventDates.length === 0 && eventDetails.startDate) {
+				eventDates = [eventDetails.startDate];
+			}
+
+			if (eventDates.length === 0) {
+				return res.status(400).json({
+					message: MESSAGE.post.custom("At least one event date is required")
+				});
+			}
+
+			// Loop through each date and create an event
+			for (const eventDate of eventDates) {
+				const payload = {
+					...eventDetails,
+					verified: false,
+					banner_Image: banner_Image_Url,
+					tickets,
+					inclusions,
+					exclusions,
+					supportingImages,
+					location,
+					startDate: eventDate // Override with the current date in loop
+				};
+
+				// Remove eventDates from payload as it's not needed in the model
+				delete payload.eventDates;
+
+				const newEvent = await new EventModel(payload).save();
+				await newEvent.populate([
+					{ path: "organizerId", select: "full_name email" },
+					{ path: "category", select: "service_name" }
+				]);
+
+				await createNotification(
+					"Event Created",
+					"A ripple in the stream, a sudden bloom of possibility. A fresh chapter opens: new event created.",
+					newEvent?._id,
+					"id",
+					newEvent?.organizerId,
+					"organizers",
+					`${newEvent?._id}`,
+					"events"
+				);
+
+				createdEvents.push(newEvent);
+			}
 		}
 
 		return res.status(200).json({
@@ -390,12 +520,40 @@ export const getUpcomingEvents = async (req: Request, res: Response) => {
 		console.log("Total events fetched from DB:", events.length);
 		console.log("Events fetched:", events.map(e => ({ id: e._id, title: e.title, startDate: e.startDate, startTime: e.startTime })));
 
+		const upcomingEvents: any[] = [];
+
+		const getNextRoutineDate = (event: any) => {
+			const dates = Array.isArray(event?.routine?.generatedDates)
+				? [...event.routine.generatedDates].sort()
+				: [];
+			for (const date of dates) {
+				const eventDateTime = new Date(`${date}T${event.startTime}:00`);
+				if (eventDateTime > currentDateTime) {
+					return date;
+				}
+			}
+			return null;
+		};
+
 		// Filter only upcoming events
-		const upcomingEvents = events.filter((event) => {
-			const eventDateTime = new Date(`${event.startDate}T${event.startTime}:00`); // Convert to Date object
-			console.log(`Event: ${event.title}, Date: ${event.startDate}, Time: ${event.startTime}, Parsed: ${eventDateTime}, Current: ${currentDateTime}, IsUpcoming: ${eventDateTime > currentDateTime}`);
-			return eventDateTime > currentDateTime; // Ensure it's strictly in the future
-		});
+		for (const event of events) {
+			if (event.type === "Routine" && event.routine?.generatedDates?.length) {
+				const nextDate = getNextRoutineDate(event);
+				if (nextDate) {
+					upcomingEvents.push({
+						...event.toObject(),
+						startDate: nextDate,
+						routineOccurrence: false
+					});
+				}
+			} else {
+				const eventDateTime = new Date(`${event.startDate}T${event.startTime}:00`); // Convert to Date object
+				console.log(`Event: ${event.title}, Date: ${event.startDate}, Time: ${event.startTime}, Parsed: ${eventDateTime}, Current: ${currentDateTime}, IsUpcoming: ${eventDateTime > currentDateTime}`);
+				if (eventDateTime > currentDateTime) {
+					upcomingEvents.push(event);
+				}
+			}
+		}
 
 		// Sort events by earliest event first
 		upcomingEvents.sort((a, b) => {

@@ -35,6 +35,25 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 		// Check if the user has already booked a ticket
 		const userBooking = bookings.some((booking: { userId: string }) => booking.userId.toString() === userId);
 
+		let routineCurrentMonthBooked = false;
+		let routineNextMonth: string | null = null;
+		if (event.type === "Routine" && userId && mongoose.Types.ObjectId.isValid(userId as string)) {
+			const now = new Date();
+			const currentMonth = now.getMonth();
+			const currentYear = now.getFullYear();
+			const nextMonthDate = new Date(currentYear, currentMonth + 1, 1);
+			routineNextMonth = `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, "0")}`;
+
+			const userBookings = bookings.filter(
+				(booking: any) => booking.userId.toString() === userId && booking.paymentStatus === "Completed"
+			);
+			routineCurrentMonthBooked = userBookings.some((booking: any) => {
+				if (!booking.subscriptionStartDate) return false;
+				const bookingDate = new Date(booking.subscriptionStartDate);
+				return bookingDate.getMonth() === currentMonth && bookingDate.getFullYear() === currentYear;
+			});
+		}
+
 		// Calculate ticket availability
 		const ticket_availability =
 			event.tickets?.map(
@@ -65,7 +84,10 @@ export const getEventByIdForUsers = async (req: Request, res: Response) => {
 				...event,
 				booking_status: bookings.length > 0,
 				ticket_availability,
-				booked: userBooking // Flag to indicate if the user has booked any ticket
+				booked: userBooking,
+				routineCurrentMonthBooked,
+				routineRenewEligible: routineCurrentMonthBooked,
+				routineNextMonth
 			}
 		});
 	} catch (error) {

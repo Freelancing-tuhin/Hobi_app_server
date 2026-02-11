@@ -32,4 +32,17 @@ export interface IEvent {
 	supportingImages?: string[];
 	inclusions?: IInclusionItem[];
 	exclusions?: IExclusionItem[];
+	subscriptionPricing?: {
+		billingCycle?: "Weekly" | "Monthly";
+		price?: number;
+	} | null;
+	routine?: {
+		mode?: "Weekly" | "Custom";
+		startDate?: string;
+		endDate?: string;
+		sessionsPerMonth?: number;
+		daysOfWeek?: number[];
+		customDates?: string[];
+		generatedDates?: string[];
+	} | null;
 }

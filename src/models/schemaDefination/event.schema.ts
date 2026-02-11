@@ -19,7 +19,7 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 		},
 		type: {
 			type: String,
-			enum: ["Single", "Recurring"],
+			enum: ["Single", "Recurring", "Routine"],
 			required: true
 		},
 		startDate: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
@@ -70,6 +70,42 @@ const eventSchema: Schema<IEvent> = new Schema<IEvent>(
 				}
 			],
 			default: []
+		},
+		subscriptionPricing: {
+			type: {
+				billingCycle: {
+					type: String,
+					enum: ["Weekly", "Monthly"],
+					default: null
+				},
+				price: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber
+			},
+			default: null
+		},
+		routine: {
+			type: {
+				mode: {
+					type: String,
+					enum: ["Weekly", "Custom"],
+					default: null
+				},
+				startDate: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+				endDate: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+				sessionsPerMonth: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
+				daysOfWeek: {
+					type: [Number],
+					default: []
+				},
+				customDates: {
+					type: [String],
+					default: []
+				},
+				generatedDates: {
+					type: [String],
+					default: []
+				}
+			},
+			default: null
 		}
 	},
 	GENERAL_SCHEMA_OPTIONS

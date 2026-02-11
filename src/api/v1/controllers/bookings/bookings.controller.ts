@@ -17,9 +17,63 @@ const razorpayInstance = new Razorpay({
 	key_secret: RAZORPAY_CONFIG.KEY_SECRET
 });
 
+const buildSubscriptionFields = (event: any, targetMonth?: string | null) => {
+	if (event?.type !== "Routine") {
+		return {};
+	}
+
+	const now = new Date();
+	now.setHours(0, 0, 0, 0);
+	const month = now.getMonth();
+	const year = now.getFullYear();
+
+	const allDates = Array.isArray(event?.routine?.generatedDates)
+		? [...event.routine.generatedDates].sort()
+		: [];
+	let dates: string[] = [];
+	if (targetMonth) {
+		const [targetYearStr, targetMonthStr] = targetMonth.split("-");
+		const targetYear = Number(targetYearStr);
+		const targetMonthIndex = Number(targetMonthStr) - 1;
+		dates = allDates.filter((dateStr: string) => {
+			const date = new Date(dateStr);
+			date.setHours(0, 0, 0, 0);
+			if (date.getMonth() !== targetMonthIndex || date.getFullYear() !== targetYear) {
+				return false;
+			}
+			return targetYear === year && targetMonthIndex === month ? date >= now : true;
+		});
+	} else {
+		dates = allDates.filter((dateStr: string) => {
+			const date = new Date(dateStr);
+			date.setHours(0, 0, 0, 0);
+			return date >= now && date.getMonth() === month && date.getFullYear() === year;
+		});
+	}
+
+	if (dates.length === 0 && !targetMonth) {
+		const nextDate = allDates.find((dateStr: string) => new Date(dateStr) >= now);
+		if (nextDate) {
+			const nextMonth = new Date(nextDate).getMonth();
+			const nextYear = new Date(nextDate).getFullYear();
+			dates = allDates.filter((dateStr: string) => {
+				const date = new Date(dateStr);
+				return date >= now && date.getMonth() === nextMonth && date.getFullYear() === nextYear;
+			});
+		}
+	}
+
+	return {
+		subscriptionDates: dates,
+		subscriptionStartDate: dates[0] || null,
+		subscriptionEndDate: dates[dates.length - 1] || null,
+		subscriptionBillingCycle: event?.subscriptionPricing?.billingCycle || null
+	};
+};
+
 export const createBooking = async (req: Request, res: Response) => {
 	try {
-		const { userId, eventId, ticketId, ticketsCount, receipt } = req.body;
+		const { userId, eventId, ticketId, ticketsCount, receipt, targetMonth } = req.body;
 
 		if (!eventId || !userId || !ticketId) {
 			return res.status(400).json({
@@ -75,6 +129,8 @@ export const createBooking = async (req: Request, res: Response) => {
 			receipt: receipt
 		});
 
+		const subscriptionFields = buildSubscriptionFields(event, targetMonth || null);
+
 		// Create booking
 		const newBooking = await new BookingModel({
 			userId,
@@ -84,7 +140,8 @@ export const createBooking = async (req: Request, res: Response) => {
 			ticketsCount,
 			transactionId: null,
 			paymentStatus: "Pending",
-			orderId: response.id
+			orderId: response.id,
+			...subscriptionFields
 		}).save();
 
 		return res.status(200).json({
@@ -435,7 +492,7 @@ export const createMultipleBookings = async (req: Request, res: Response) => {
 		const bookingsToCreate = [];
 
 		for (const item of items) {
-			const { eventId, ticketId, ticketsCount } = item;
+			const { eventId, ticketId, ticketsCount, targetMonth } = item;
 
 			if (!eventId || !ticketId || !ticketsCount) {
 				return res.status(400).json({
@@ -449,6 +506,8 @@ export const createMultipleBookings = async (req: Request, res: Response) => {
 					message: MESSAGE.post.custom(`Event not found for ID: ${eventId}`)
 				});
 			}
+
+			const subscriptionFields = buildSubscriptionFields(event, targetMonth || null);
 
 			const ticket = event.tickets.find((t: any) => t._id.toString() === ticketId);
 			if (!ticket) {
@@ -494,7 +553,8 @@ export const createMultipleBookings = async (req: Request, res: Response) => {
 				amountPaid: 0,
 				ticketsCount,
 				transactionId: null,
-				paymentStatus: "Pending"
+				paymentStatus: "Pending",
+				...subscriptionFields
 			});
 		}
 

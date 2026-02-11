@@ -11,4 +11,8 @@ export interface IBooking {
 	orderId?: string | null; // For online payments, can be null if not applicable
 	refundId?: string | null; // For online payments, can be null if not applicable
 	booking_status?: "Pending" | "check-in" | "in-progress" | "Completed" | "Canceled"; // Optional with default value
+	subscriptionDates?: string[];
+	subscriptionStartDate?: string | null;
+	subscriptionEndDate?: string | null;
+	subscriptionBillingCycle?: "Weekly" | "Monthly" | null;
 }

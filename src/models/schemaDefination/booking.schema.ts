@@ -33,7 +33,14 @@ const bookingSchema: Schema<IBooking> = new Schema<IBooking>(
 		ticketsCount: SCHEMA_DEFINITION_PROPERTY.optionalNullNumber,
 		transactionId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
 		refundId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
-		orderId: SCHEMA_DEFINITION_PROPERTY.optionalNullString
+		orderId: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		subscriptionDates: {
+			type: [String],
+			default: []
+		},
+		subscriptionStartDate: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		subscriptionEndDate: SCHEMA_DEFINITION_PROPERTY.optionalNullString,
+		subscriptionBillingCycle: SCHEMA_DEFINITION_PROPERTY.optionalNullString
 	},
 	GENERAL_SCHEMA_OPTIONS
 );

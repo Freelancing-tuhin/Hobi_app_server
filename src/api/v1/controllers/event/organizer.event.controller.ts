@@ -154,7 +154,9 @@ export const getBookingsByEvent = async (req: Request, res: Response) => {
 					bookingStatus: "$booking_status",
 					bookingId: "$_id",
 					userDetails: "$userDetails",
-					ticketDetails: "$ticketDetails"
+					ticketDetails: "$ticketDetails",
+					eventType: "$eventDetails.type",
+					subscriptionStartDate: "$subscriptionStartDate"
 				}
 			}
 		]);
